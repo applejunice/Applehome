@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>散步适合度查询 - Walk Suitability Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .search-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 2rem;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-form input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-form button {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .search-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-form button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .popular-cities {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .city-tag {
+            padding: 0.5rem 1rem;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .city-tag:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .result-card.active {
+            display: block;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .score-circle::after {
+            content: '分';
+            font-size: 1.5rem;
+            position: absolute;
+            bottom: 50px;
+            right: 40px;
+        }
+
+        .score-excellent { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .score-good { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .score-fair { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .score-poor { background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%); }
+
+        .score-label {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-recommendation {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .detail-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .reasons-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #fff3cd;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .reasons-section h3 {
+            color: #856404;
+            margin-bottom: 1rem;
+        }
+
+        .reasons-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .reasons-section li {
+            padding: 0.5rem 0;
+            color: #856404;
+        }
+
+        .reasons-section li::before {
+            content: "• ";
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .score-breakdown {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+
+        .score-breakdown h3 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+        }
+
+        .score-bar {
+            margin-bottom: 1rem;
+        }
+
+        .score-bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .score-bar-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .timestamp {
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .score-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 3rem;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚶 散步适合度查询</h1>
+            <p>基于天气和空气质量的智能散步建议</p>
+        </div>
+
+        <div class="search-card">
+            <form class="search-form" id="searchForm">
+                <input
+                    type="text"
+                    id="cityInput"
+                    placeholder="输入城市名称（英文，例如: Tokyo, Beijing, London）"
+                    value="Tokyo"
+                    required
+                >
+                <button type="submit" id="searchBtn">查询</button>
+            </form>
+
+            <div class="popular-cities">
+                <span style="color: #666; margin-right: 0.5rem;">热门城市:</span>
+                <button class="city-tag" data-city="Tokyo">Tokyo</button>
+                <button class="city-tag" data-city="Beijing">Beijing</button>
+                <button class="city-tag" data-city="Shanghai">Shanghai</button>
+                <button class="city-tag" data-city="London">London</button>
+                <button class="city-tag" data-city="Paris">Paris</button>
+                <button class="city-tag" data-city="New York">New York</button>
+                <button class="city-tag" data-city="Seoul">Seoul</button>
+                <button class="city-tag" data-city="Singapore">Singapore</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <p>🔍 正在获取数据...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result-card" id="resultCard">
+            <div class="score-display">
+                <div class="score-circle" id="scoreCircle">--</div>
+                <div class="score-label" id="scoreLabel">--</div>
+                <div class="score-recommendation" id="scoreRecommendation">--</div>
+            </div>
+
+            <div class="score-breakdown" id="scoreBreakdown">
+                <h3>📊 评分详情</h3>
+            </div>
+
+            <div class="reasons-section" id="reasonsSection">
+                <h3>💡 评估要点</h3>
+                <ul id="reasonsList"></ul>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-card">
+                    <h3>🌤️ 天气信息</h3>
+                    <div id="weatherDetails"></div>
+                </div>
+
+                <div class="detail-card">
+                    <h3>💨 空气质量</h3>
+                    <div id="airQualityDetails"></div>
+                </div>
+            </div>
+
+            <div class="timestamp" id="timestamp"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+
+        const searchForm = document.getElementById('searchForm');
+        const cityInput = document.getElementById('cityInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const resultCard = document.getElementById('resultCard');
+
+        // 城市标签点击
+        document.querySelectorAll('.city-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                cityInput.value = tag.dataset.city;
+                searchForm.dispatchEvent(new Event('submit'));
+            });
+        });
+
+        // 表单提交
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const city = cityInput.value.trim();
+            if (!city) return;
+
+            await fetchWalkSuitability(city);
+        });
+
+        async function fetchWalkSuitability(city) {
+            // 显示加载状态
+            loading.classList.add('active');
+            error.classList.remove('active');
+            resultCard.classList.remove('active');
+            searchBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/walk-suitability?city=${encodeURIComponent(city)}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || '数据获取失败');
+                }
+
+                displayResults(data);
+            } catch (err) {
+                error.textContent = `❌ 错误: ${err.message}`;
+                error.classList.add('active');
+            } finally {
+                loading.classList.remove('active');
+                searchBtn.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            const { suitability, weather, air_quality, city, timestamp } = data;
+
+            // 显示分数
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreLabel = document.getElementById('scoreLabel');
+            const scoreRecommendation = document.getElementById('scoreRecommendation');
+
+            scoreCircle.textContent = suitability.score;
+            scoreLabel.textContent = suitability.level;
+            scoreRecommendation.textContent = suitability.recommendation;
+
+            // 设置分数颜色
+            scoreCircle.className = 'score-circle';
+            if (suitability.score >= 80) {
+                scoreCircle.classList.add('score-excellent');
+            } else if (suitability.score >= 60) {
+                scoreCircle.classList.add('score-good');
+            } else if (suitability.score >= 40) {
+                scoreCircle.classList.add('score-fair');
+            } else {
+                scoreCircle.classList.add('score-poor');
+            }
+
+            // 显示评分详情
+            const scoreBreakdown = document.getElementById('scoreBreakdown');
+            const breakdownHTML = `
+                <h3>📊 评分详情</h3>
+                ${createScoreBar('温度', suitability.details.temperature_score)}
+                ${createScoreBar('天气状况', suitability.details.weather_score)}
+                ${createScoreBar('空气质量', suitability.details.aqi_score)}
+                ${createScoreBar('湿度', suitability.details.humidity_score)}
+                ${createScoreBar('风速', suitability.details.wind_score)}
+            `;
+            scoreBreakdown.innerHTML = breakdownHTML;
+
+            // 显示原因
+            const reasonsList = document.getElementById('reasonsList');
+            reasonsList.innerHTML = suitability.reasons.map(reason => `<li>${reason}</li>`).join('');
+
+            // 显示天气详情
+            const weatherDetails = document.getElementById('weatherDetails');
+            weatherDetails.innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">温度</span>
+                    <span class="detail-value">${weather.temperature}°C</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">体感温度</span>
+                    <span class="detail-value">${weather.feels_like}°C</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">天气</span>
+                    <span class="detail-value">${weather.weather_description}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">湿度</span>
+                    <span class="detail-value">${weather.humidity}%</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">风速</span>
+                    <span class="detail-value">${weather.wind_speed} m/s</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">云量</span>
+                    <span class="detail-value">${weather.clouds}%</span>
+                </div>
+            `;
+
+            // 显示空气质量详情
+            const airQualityDetails = document.getElementById('airQualityDetails');
+            airQualityDetails.innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">AQI指数</span>
+                    <span class="detail-value">${air_quality.aqi}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">PM2.5</span>
+                    <span class="detail-value">${air_quality.pm25 || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">PM10</span>
+                    <span class="detail-value">${air_quality.pm10 || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">臭氧(O3)</span>
+                    <span class="detail-value">${air_quality.o3 || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">二氧化氮(NO2)</span>
+                    <span class="detail-value">${air_quality.no2 || 'N/A'}</span>
+                </div>
+            `;
+
+            // 显示时间戳
+            const timestampEl = document.getElementById('timestamp');
+            timestampEl.textContent = `📅 查询城市: ${city} | 数据更新时间: ${new Date(timestamp).toLocaleString('zh-CN')}`;
+
+            // 显示结果卡片
+            resultCard.classList.add('active');
+        }
+
+        function createScoreBar(label, score) {
+            return `
+                <div class="score-bar">
+                    <div class="score-bar-label">
+                        <span>${label}</span>
+                        <span>${score}分</span>
+                    </div>
+                    <div class="score-bar-track">
+                        <div class="score-bar-fill" style="width: ${score}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 页面加载时自动查询Tokyo
+        window.addEventListener('load', () => {
+            fetchWalkSuitability('Tokyo');
+        });
+    </script>
+</body>
+</html>

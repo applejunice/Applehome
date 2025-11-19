@@ -1,0 +1,341 @@
+openapi: 3.0.3
+info:
+  title: Walk Suitability API
+  description: |
+    散步适合度指数API - 整合天气和空气质量数据，为用户提供科学的散步建议
+
+    本服务通过调用以下两个公共API：
+    - OpenWeatherMap API (天气数据)
+    - World Air Quality Index API (空气质量数据)
+
+    并将这些数据融合计算出一个综合的"散步适合度指数"(0-100分)。
+
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@walksuitability.com
+
+servers:
+  - url: http://localhost:5000
+    description: 本地开发服务器
+  - url: http://your-production-server.com
+    description: 生产服务器
+
+tags:
+  - name: Walk Suitability
+    description: 散步适合度相关接口
+  - name: Weather
+    description: 天气数据接口
+  - name: Air Quality
+    description: 空气质量数据接口
+  - name: System
+    description: 系统接口
+
+paths:
+  /:
+    get:
+      tags:
+        - System
+      summary: API信息
+      description: 获取API的基本信息和可用端点
+      responses:
+        '200':
+          description: 成功返回API信息
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                    example: Walk Suitability API
+                  version:
+                    type: string
+                    example: 1.0.0
+                  description:
+                    type: string
+                  endpoints:
+                    type: object
+
+  /health:
+    get:
+      tags:
+        - System
+      summary: 健康检查
+      description: 检查API服务是否正常运行
+      responses:
+        '200':
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/walk-suitability:
+    get:
+      tags:
+        - Walk Suitability
+      summary: 获取散步适合度指数
+      description: |
+        根据指定城市的天气和空气质量数据，计算并返回散步适合度指数。
+
+        评分标准：
+        - 80-100分：非常适合散步
+        - 60-79分：适合散步
+        - 40-59分：一般
+        - 0-39分：不适合散步
+
+        计算因素包括：
+        - 温度 (权重: 25%)
+        - 天气状况 (权重: 25%)
+        - 空气质量 (权重: 30%)
+        - 湿度 (权重: 10%)
+        - 风速 (权重: 10%)
+      parameters:
+        - name: city
+          in: query
+          description: 城市名称（英文）
+          required: false
+          schema:
+            type: string
+            default: Tokyo
+            example: Tokyo
+      responses:
+        '200':
+          description: 成功返回散步适合度数据
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  city:
+                    type: string
+                    example: Tokyo
+                  timestamp:
+                    type: string
+                    format: date-time
+                  suitability:
+                    type: object
+                    properties:
+                      score:
+                        type: number
+                        format: float
+                        description: 散步适合度指数 (0-100)
+                        example: 85.5
+                      level:
+                        type: string
+                        description: 适合度等级
+                        enum: [非常适合, 适合, 一般, 不适合]
+                        example: 非常适合
+                      recommendation:
+                        type: string
+                        description: 散步建议
+                        example: 现在是散步的绝佳时机！
+                      reasons:
+                        type: array
+                        items:
+                          type: string
+                        description: 评分原因说明
+                        example: ["天气和空气质量都很好"]
+                      details:
+                        type: object
+                        properties:
+                          temperature_score:
+                            type: number
+                            example: 100.0
+                          weather_score:
+                            type: number
+                            example: 100.0
+                          humidity_score:
+                            type: number
+                            example: 80.0
+                          wind_score:
+                            type: number
+                            example: 100.0
+                          aqi_score:
+                            type: number
+                            example: 80.0
+                  weather:
+                    $ref: '#/components/schemas/WeatherData'
+                  air_quality:
+                    $ref: '#/components/schemas/AirQualityData'
+        '500':
+          description: 服务器错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/weather:
+    get:
+      tags:
+        - Weather
+      summary: 获取天气数据
+      description: 从OpenWeatherMap API获取指定城市的天气信息
+      parameters:
+        - name: city
+          in: query
+          description: 城市名称（英文）
+          required: false
+          schema:
+            type: string
+            default: Tokyo
+            example: Tokyo
+      responses:
+        '200':
+          description: 成功返回天气数据
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  city:
+                    type: string
+                    example: Tokyo
+                  timestamp:
+                    type: string
+                    format: date-time
+                  data:
+                    $ref: '#/components/schemas/WeatherData'
+        '500':
+          description: 服务器错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/air-quality:
+    get:
+      tags:
+        - Air Quality
+      summary: 获取空气质量数据
+      description: 从World Air Quality Index API获取指定城市的空气质量信息
+      parameters:
+        - name: city
+          in: query
+          description: 城市名称（英文）
+          required: false
+          schema:
+            type: string
+            default: Tokyo
+            example: Tokyo
+      responses:
+        '200':
+          description: 成功返回空气质量数据
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  city:
+                    type: string
+                    example: Tokyo
+                  timestamp:
+                    type: string
+                    format: date-time
+                  data:
+                    $ref: '#/components/schemas/AirQualityData'
+        '500':
+          description: 服务器错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    WeatherData:
+      type: object
+      description: 天气数据对象
+      properties:
+        temperature:
+          type: number
+          format: float
+          description: 温度（摄氏度）
+          example: 22.5
+        feels_like:
+          type: number
+          format: float
+          description: 体感温度（摄氏度）
+          example: 21.8
+        humidity:
+          type: integer
+          description: 湿度（百分比）
+          example: 65
+        weather:
+          type: string
+          description: 天气状况
+          example: Clear
+        weather_description:
+          type: string
+          description: 天气详细描述
+          example: clear sky
+        wind_speed:
+          type: number
+          format: float
+          description: 风速（米/秒）
+          example: 3.5
+        clouds:
+          type: integer
+          description: 云量（百分比）
+          example: 20
+
+    AirQualityData:
+      type: object
+      description: 空气质量数据对象
+      properties:
+        aqi:
+          type: integer
+          description: 空气质量指数 (AQI)
+          example: 45
+        pm25:
+          type: number
+          format: float
+          description: PM2.5浓度
+          nullable: true
+          example: 12.5
+        pm10:
+          type: number
+          format: float
+          description: PM10浓度
+          nullable: true
+          example: 25.3
+        o3:
+          type: number
+          format: float
+          description: 臭氧浓度
+          nullable: true
+          example: 30.2
+        no2:
+          type: number
+          format: float
+          description: 二氧化氮浓度
+          nullable: true
+          example: 15.8
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: 错误信息
+          example: 天气数据获取失败

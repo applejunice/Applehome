@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walk Suitability API - API Documentation</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .info-section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .info-card h2 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .info-card ul {
+            line-height: 1.8;
+        }
+
+        .api-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .api-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .api-item h3 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .api-item p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .swagger-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem 2rem 2rem;
+        }
+
+        #swagger-ui {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .feature-box h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+
+        .feature-box p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .alert {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚶 Walk Suitability API</h1>
+        <p>散步適合度指数 API - 智能融合天气与空气质量数据</p>
+    </div>
+
+    <div class="info-section">
+        <div class="info-card">
+            <h2>📖 关于本服务</h2>
+            <p>
+                Walk Suitability API 是一个创新的Web服务，通过整合多个公共API的数据，
+                为用户提供科学、全面的散步建议。本服务调用两个开源的第三方API，
+                并将数据融合计算出独特的"散步适合度指数"。
+            </p>
+        </div>
+
+        <div class="info-card">
+            <h2>🔌 使用的第三方API</h2>
+            <div class="api-list">
+                <div class="api-item">
+                    <h3>🌤️ OpenWeatherMap API</h3>
+                    <p>提供实时天气数据，包括温度、湿度、风速、天气状况等信息</p>
+                    <p style="margin-top: 0.5rem;"><strong>官网:</strong> <a href="https://openweathermap.org/api" target="_blank">openweathermap.org</a></p>
+                </div>
+                <div class="api-item">
+                    <h3>💨 World Air Quality Index API</h3>
+                    <p>提供全球城市的空气质量指数(AQI)、PM2.5、PM10等污染物数据</p>
+                    <p style="margin-top: 0.5rem;"><strong>官网:</strong> <a href="https://aqicn.org/api/" target="_blank">aqicn.org</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h2>✨ 数据融合方法</h2>
+            <p>本服务通过以下创新算法融合两个API的数据：</p>
+            <div class="feature-grid">
+                <div class="feature-box">
+                    <h3>25%</h3>
+                    <p>温度权重</p>
+                </div>
+                <div class="feature-box">
+                    <h3>25%</h3>
+                    <p>天气状况权重</p>
+                </div>
+                <div class="feature-box">
+                    <h3>30%</h3>
+                    <p>空气质量权重</p>
+                </div>
+                <div class="feature-box">
+                    <h3>20%</h3>
+                    <p>湿度+风速权重</p>
+                </div>
+            </div>
+            <ul>
+                <li><strong>温度评估:</strong> 最佳温度范围15-25°C，偏离此范围会降低评分</li>
+                <li><strong>天气状况:</strong> 晴天和多云最佳，雨雪天气会显著降低评分</li>
+                <li><strong>空气质量:</strong> 根据AQI指数评估，污染严重时强烈影响评分</li>
+                <li><strong>湿度与风速:</strong> 考虑人体舒适度，过高或过低都会影响评分</li>
+                <li><strong>综合评分:</strong> 加权平均计算最终的散步适合度指数(0-100分)</li>
+            </ul>
+        </div>
+
+        <div class="info-card">
+            <h2>🎯 主要功能</h2>
+            <ul>
+                <li><strong>GET /api/walk-suitability:</strong> 获取综合散步适合度指数（融合天气+空气质量）</li>
+                <li><strong>GET /api/weather:</strong> 获取城市天气数据</li>
+                <li><strong>GET /api/air-quality:</strong> 获取城市空气质量数据</li>
+                <li><strong>GET /health:</strong> 健康检查端点</li>
+            </ul>
+        </div>
+
+        <div class="info-card">
+            <h2>📊 评分标准</h2>
+            <ul>
+                <li><strong>80-100分:</strong> 非常适合散步 - 现在是散步的绝佳时机！</li>
+                <li><strong>60-79分:</strong> 适合散步 - 适合散步，请注意某些情况</li>
+                <li><strong>40-59分:</strong> 一般 - 可以散步，但条件不是很理想</li>
+                <li><strong>0-39分:</strong> 不适合 - 建议推迟散步计划</li>
+            </ul>
+        </div>
+
+        <div class="alert">
+            <strong>💡 提示:</strong> 如果下方的Swagger UI无法正常加载，请使用简单的HTTP服务器打开此文件：
+            <br><code>python -m http.server 8080</code> 然后访问 <code>http://localhost:8080/api-docs.html</code>
+        </div>
+    </div>
+
+    <div class="swagger-container">
+        <div id="swagger-ui"></div>
+    </div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui-standalone-preset.js"></script>
+    <script>
+        // OpenAPI 规范内联版本（避免CORS问题）
+        const spec = {
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Walk Suitability API",
+    "description": "散步适合度指数API - 整合天气和空气质量数据，为用户提供科学的散步建议\n\n本服务通过调用以下两个公共API：\n- OpenWeatherMap API (天气数据)\n- World Air Quality Index API (空气质量数据)\n\n并将这些数据融合计算出一个综合的\"散步适合度指数\"(0-100分)。\n",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@walksuitability.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "本地开发服务器"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Walk Suitability",
+      "description": "散步适合度相关接口"
+    },
+    {
+      "name": "Weather",
+      "description": "天气数据接口"
+    },
+    {
+      "name": "Air Quality",
+      "description": "空气质量数据接口"
+    },
+    {
+      "name": "System",
+      "description": "系统接口"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["System"],
+        "summary": "API信息",
+        "description": "获取API的基本信息和可用端点",
+        "responses": {
+          "200": {
+            "description": "成功返回API信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "service": {
+                      "type": "string",
+                      "example": "Walk Suitability API"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "1.0.0"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "endpoints": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "健康检查",
+        "description": "检查API服务是否正常运行",
+        "responses": {
+          "200": {
+            "description": "服务正常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/walk-suitability": {
+      "get": {
+        "tags": ["Walk Suitability"],
+        "summary": "获取散步适合度指数",
+        "description": "根据指定城市的天气和空气质量数据，计算并返回散步适合度指数。\n\n评分标准：\n- 80-100分：非常适合散步\n- 60-79分：适合散步\n- 40-59分：一般\n- 0-39分：不适合散步\n\n计算因素包括：\n- 温度 (权重: 25%)\n- 天气状况 (权重: 25%)\n- 空气质量 (权重: 30%)\n- 湿度 (权重: 10%)\n- 风速 (权重: 10%)\n",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "description": "城市名称（英文）",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Tokyo",
+              "example": "Tokyo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回散步适合度数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "city": {
+                      "type": "string",
+                      "example": "Tokyo"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "suitability": {
+                      "type": "object",
+                      "properties": {
+                        "score": {
+                          "type": "number",
+                          "format": "float",
+                          "description": "散步适合度指数 (0-100)",
+                          "example": 85.5
+                        },
+                        "level": {
+                          "type": "string",
+                          "description": "适合度等级",
+                          "enum": ["非常适合", "适合", "一般", "不适合"],
+                          "example": "非常适合"
+                        },
+                        "recommendation": {
+                          "type": "string",
+                          "description": "散步建议",
+                          "example": "现在是散步的绝佳时机！"
+                        },
+                        "reasons": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "评分原因说明",
+                          "example": ["天气和空气质量都很好"]
+                        },
+                        "details": {
+                          "type": "object",
+                          "properties": {
+                            "temperature_score": {
+                              "type": "number",
+                              "example": 100.0
+                            },
+                            "weather_score": {
+                              "type": "number",
+                              "example": 100.0
+                            },
+                            "humidity_score": {
+                              "type": "number",
+                              "example": 80.0
+                            },
+                            "wind_score": {
+                              "type": "number",
+                              "example": 100.0
+                            },
+                            "aqi_score": {
+                              "type": "number",
+                              "example": 80.0
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "weather": {
+                      "$ref": "#/components/schemas/WeatherData"
+                    },
+                    "air_quality": {
+                      "$ref": "#/components/schemas/AirQualityData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/weather": {
+      "get": {
+        "tags": ["Weather"],
+        "summary": "获取天气数据",
+        "description": "从OpenWeatherMap API获取指定城市的天气信息",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "description": "城市名称（英文）",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Tokyo",
+              "example": "Tokyo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回天气数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "city": {
+                      "type": "string",
+                      "example": "Tokyo"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/WeatherData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/air-quality": {
+      "get": {
+        "tags": ["Air Quality"],
+        "summary": "获取空气质量数据",
+        "description": "从World Air Quality Index API获取指定城市的空气质量信息",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "description": "城市名称（英文）",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Tokyo",
+              "example": "Tokyo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回空气质量数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "city": {
+                      "type": "string",
+                      "example": "Tokyo"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AirQualityData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WeatherData": {
+        "type": "object",
+        "description": "天气数据对象",
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "format": "float",
+            "description": "温度（摄氏度）",
+            "example": 22.5
+          },
+          "feels_like": {
+            "type": "number",
+            "format": "float",
+            "description": "体感温度（摄氏度）",
+            "example": 21.8
+          },
+          "humidity": {
+            "type": "integer",
+            "description": "湿度（百分比）",
+            "example": 65
+          },
+          "weather": {
+            "type": "string",
+            "description": "天气状况",
+            "example": "Clear"
+          },
+          "weather_description": {
+            "type": "string",
+            "description": "天气详细描述",
+            "example": "clear sky"
+          },
+          "wind_speed": {
+            "type": "number",
+            "format": "float",
+            "description": "风速（米/秒）",
+            "example": 3.5
+          },
+          "clouds": {
+            "type": "integer",
+            "description": "云量（百分比）",
+            "example": 20
+          }
+        }
+      },
+      "AirQualityData": {
+        "type": "object",
+        "description": "空气质量数据对象",
+        "properties": {
+          "aqi": {
+            "type": "integer",
+            "description": "空气质量指数 (AQI)",
+            "example": 45
+          },
+          "pm25": {
+            "type": "number",
+            "format": "float",
+            "description": "PM2.5浓度",
+            "nullable": true,
+            "example": 12.5
+          },
+          "pm10": {
+            "type": "number",
+            "format": "float",
+            "description": "PM10浓度",
+            "nullable": true,
+            "example": 25.3
+          },
+          "o3": {
+            "type": "number",
+            "format": "float",
+            "description": "臭氧浓度",
+            "nullable": true,
+            "example": 30.2
+          },
+          "no2": {
+            "type": "number",
+            "format": "float",
+            "description": "二氧化氮浓度",
+            "nullable": true,
+            "example": 15.8
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "description": "错误信息",
+            "example": "天气数据获取失败"
+          }
+        }
+      }
+    }
+  }
+};
+
+        window.onload = function() {
+            // 使用内联的 OpenAPI 规范
+            window.ui = SwaggerUIBundle({
+                spec: spec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                defaultModelsExpandDepth: 1,
+                defaultModelExpandDepth: 1,
+                docExpansion: 'list',
+                tryItOutEnabled: true,
+                displayRequestDuration: true,
+                filter: true,
+                syntaxHighlight: {
+                    activate: true,
+                    theme: "monokai"
+                }
+            });
+        };
+    </script>
+</body>
+</html>
