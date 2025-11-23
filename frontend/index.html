@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>散步适合度查询 - Walk Suitability Checker</title>
+    <title>散歩適性検索 - Walk Suitability Checker</title>
     <style>
         * {
             margin: 0;
@@ -329,8 +329,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚶 散步适合度查询</h1>
-            <p>基于天气和空气质量的智能散步建议</p>
+            <h1>🚶 散歩適性検索</h1>
+            <p>天気と空気質に基づくインテリジェントな散歩提案</p>
         </div>
 
         <div class="search-card">
@@ -338,15 +338,15 @@
                 <input
                     type="text"
                     id="cityInput"
-                    placeholder="输入城市名称（英文，例如: Tokyo, Beijing, London）"
+                    placeholder="都市名を入力(英語、例: Tokyo, Beijing, London)"
                     value="Tokyo"
                     required
                 >
-                <button type="submit" id="searchBtn">查询</button>
+                <button type="submit" id="searchBtn">検索</button>
             </form>
 
             <div class="popular-cities">
-                <span style="color: #666; margin-right: 0.5rem;">热门城市:</span>
+                <span style="color: #666; margin-right: 0.5rem;">人気都市:</span>
                 <button class="city-tag" data-city="Tokyo">Tokyo</button>
                 <button class="city-tag" data-city="Beijing">Beijing</button>
                 <button class="city-tag" data-city="Shanghai">Shanghai</button>
@@ -359,7 +359,7 @@
         </div>
 
         <div class="loading" id="loading">
-            <p>🔍 正在获取数据...</p>
+            <p>🔍 データ取得中...</p>
         </div>
 
         <div class="error" id="error"></div>
@@ -372,22 +372,22 @@
             </div>
 
             <div class="score-breakdown" id="scoreBreakdown">
-                <h3>📊 评分详情</h3>
+                <h3>📊 スコア詳細</h3>
             </div>
 
             <div class="reasons-section" id="reasonsSection">
-                <h3>💡 评估要点</h3>
+                <h3>💡 評価ポイント</h3>
                 <ul id="reasonsList"></ul>
             </div>
 
             <div class="details-grid">
                 <div class="detail-card">
-                    <h3>🌤️ 天气信息</h3>
+                    <h3>🌤️ 天気情報</h3>
                     <div id="weatherDetails"></div>
                 </div>
 
                 <div class="detail-card">
-                    <h3>💨 空气质量</h3>
+                    <h3>💨 空気質</h3>
                     <div id="airQualityDetails"></div>
                 </div>
             </div>
@@ -406,7 +406,7 @@
         const error = document.getElementById('error');
         const resultCard = document.getElementById('resultCard');
 
-        // 城市标签点击
+        // 都市タグクリック
         document.querySelectorAll('.city-tag').forEach(tag => {
             tag.addEventListener('click', () => {
                 cityInput.value = tag.dataset.city;
@@ -414,7 +414,7 @@
             });
         });
 
-        // 表单提交
+        // フォーム送信
         searchForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const city = cityInput.value.trim();
@@ -424,7 +424,7 @@
         });
 
         async function fetchWalkSuitability(city) {
-            // 显示加载状态
+            // ローディング状態を表示
             loading.classList.add('active');
             error.classList.remove('active');
             resultCard.classList.remove('active');
@@ -435,12 +435,12 @@
                 const data = await response.json();
 
                 if (!data.success) {
-                    throw new Error(data.error || '数据获取失败');
+                    throw new Error(data.error || 'データ取得失敗');
                 }
 
                 displayResults(data);
             } catch (err) {
-                error.textContent = `❌ 错误: ${err.message}`;
+                error.textContent = `❌ エラー: ${err.message}`;
                 error.classList.add('active');
             } finally {
                 loading.classList.remove('active');
@@ -451,7 +451,7 @@
         function displayResults(data) {
             const { suitability, weather, air_quality, city, timestamp } = data;
 
-            // 显示分数
+            // スコアを表示
             const scoreCircle = document.getElementById('scoreCircle');
             const scoreLabel = document.getElementById('scoreLabel');
             const scoreRecommendation = document.getElementById('scoreRecommendation');
@@ -460,7 +460,7 @@
             scoreLabel.textContent = suitability.level;
             scoreRecommendation.textContent = suitability.recommendation;
 
-            // 设置分数颜色
+            // スコアの色を設定
             scoreCircle.className = 'score-circle';
             if (suitability.score >= 80) {
                 scoreCircle.classList.add('score-excellent');
@@ -472,35 +472,35 @@
                 scoreCircle.classList.add('score-poor');
             }
 
-            // 显示评分详情
+            // スコア詳細を表示
             const scoreBreakdown = document.getElementById('scoreBreakdown');
             const breakdownHTML = `
-                <h3>📊 评分详情</h3>
-                ${createScoreBar('温度', suitability.details.temperature_score)}
-                ${createScoreBar('天气状况', suitability.details.weather_score)}
-                ${createScoreBar('空气质量', suitability.details.aqi_score)}
+                <h3>📊 スコア詳細</h3>
+                ${createScoreBar('気温', suitability.details.temperature_score)}
+                ${createScoreBar('天気状況', suitability.details.weather_score)}
+                ${createScoreBar('空気質', suitability.details.aqi_score)}
                 ${createScoreBar('湿度', suitability.details.humidity_score)}
-                ${createScoreBar('风速', suitability.details.wind_score)}
+                ${createScoreBar('風速', suitability.details.wind_score)}
             `;
             scoreBreakdown.innerHTML = breakdownHTML;
 
-            // 显示原因
+            // 理由を表示
             const reasonsList = document.getElementById('reasonsList');
             reasonsList.innerHTML = suitability.reasons.map(reason => `<li>${reason}</li>`).join('');
 
-            // 显示天气详情
+            // 天気詳細を表示
             const weatherDetails = document.getElementById('weatherDetails');
             weatherDetails.innerHTML = `
                 <div class="detail-item">
-                    <span class="detail-label">温度</span>
+                    <span class="detail-label">気温</span>
                     <span class="detail-value">${weather.temperature}°C</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">体感温度</span>
+                    <span class="detail-label">体感気温</span>
                     <span class="detail-value">${weather.feels_like}°C</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">天气</span>
+                    <span class="detail-label">天気</span>
                     <span class="detail-value">${weather.weather_description}</span>
                 </div>
                 <div class="detail-item">
@@ -508,16 +508,16 @@
                     <span class="detail-value">${weather.humidity}%</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">风速</span>
+                    <span class="detail-label">風速</span>
                     <span class="detail-value">${weather.wind_speed} m/s</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">云量</span>
+                    <span class="detail-label">雲量</span>
                     <span class="detail-value">${weather.clouds}%</span>
                 </div>
             `;
 
-            // 显示空气质量详情
+            // 空気質詳細を表示
             const airQualityDetails = document.getElementById('airQualityDetails');
             airQualityDetails.innerHTML = `
                 <div class="detail-item">
@@ -533,20 +533,20 @@
                     <span class="detail-value">${air_quality.pm10 || 'N/A'}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">臭氧(O3)</span>
+                    <span class="detail-label">オゾン(O3)</span>
                     <span class="detail-value">${air_quality.o3 || 'N/A'}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">二氧化氮(NO2)</span>
+                    <span class="detail-label">二酸化窒素(NO2)</span>
                     <span class="detail-value">${air_quality.no2 || 'N/A'}</span>
                 </div>
             `;
 
-            // 显示时间戳
+            // タイムスタンプを表示
             const timestampEl = document.getElementById('timestamp');
-            timestampEl.textContent = `📅 查询城市: ${city} | 数据更新时间: ${new Date(timestamp).toLocaleString('zh-CN')}`;
+            timestampEl.textContent = `📅 検索都市: ${city} | データ更新時間: ${new Date(timestamp).toLocaleString('ja-JP')}`;
 
-            // 显示结果卡片
+            // 結果カードを表示
             resultCard.classList.add('active');
         }
 
@@ -555,7 +555,7 @@
                 <div class="score-bar">
                     <div class="score-bar-label">
                         <span>${label}</span>
-                        <span>${score}分</span>
+                        <span>${score}点</span>
                     </div>
                     <div class="score-bar-track">
                         <div class="score-bar-fill" style="width: ${score}%"></div>
@@ -564,7 +564,7 @@
             `;
         }
 
-        // 页面加载时自动查询Tokyo
+        // ページ読み込み時にTokyoを自動検索
         window.addEventListener('load', () => {
             fetchWalkSuitability('Tokyo');
         });

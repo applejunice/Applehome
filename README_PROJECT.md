@@ -1,138 +1,138 @@
-# Walk Suitability API - 散步适合度指数服务
+# Walk Suitability API - 散歩適性指数サービス
 
-## 📖 项目概述
+## 📖 プロジェクト概要
 
-本项目是一个创新的Web服务，通过整合**两个开源的第三方API**，为用户提供科学、全面的散步建议。系统会根据实时天气和空气质量数据，计算出独特的"散步适合度指数"(0-100分)。
+本プロジェクトは、**2つのオープンソースサードパーティAPI**を統合することで、ユーザーに科学的で包括的な散歩提案を提供する革新的なWebサービスです。システムはリアルタイムの天気と空気質データに基づいて、独自の「散歩適性指数」(0-100点)を計算します。
 
-## 🌟 项目特点
+## 🌟 プロジェクトの特徴
 
-### 使用的开源第三方API
+### 使用するオープンソースサードパーティAPI
 
 1. **OpenWeatherMap API** (https://openweathermap.org/api)
-   - 提供实时天气数据
-   - 包括温度、湿度、风速、天气状况等信息
-   - 免费API，每分钟60次调用限制
+   - リアルタイム天気データを提供
+   - 気温、湿度、風速、天気状況などの情報を含む
+   - 無料API、毎分60回の呼び出し制限
 
 2. **World Air Quality Index API** (https://aqicn.org/api/)
-   - 提供全球城市的空气质量指数(AQI)
-   - 包括PM2.5、PM10、O3、NO2等污染物数据
-   - 免费API，每分钟1000次调用限制
+   - 世界の都市の空気質指数(AQI)を提供
+   - PM2.5、PM10、O3、NO2などの汚染物質データを含む
+   - 無料API、毎分1000回の呼び出し制限
 
-### 数据融合方法
+### データ融合方法
 
-本服务通过创新的加权算法融合两个API的数据：
+本サービスは革新的な加重アルゴリズムで2つのAPIのデータを融合します:
 
-- **温度权重: 25%** - 评估温度是否适合户外活动（最佳范围15-25°C）
-- **天气状况权重: 25%** - 判断天气类型（晴天、雨天、雪天等）
-- **空气质量权重: 30%** - 根据AQI指数评估空气污染程度
-- **湿度权重: 10%** - 考虑人体舒适度（最佳范围40-70%）
-- **风速权重: 10%** - 评估风力影响（最佳范围<5m/s）
+- **気温の重み: 25%** - 気温が屋外活動に適しているかを評価(最適範囲15-25°C)
+- **天気状況の重み: 25%** - 天気タイプを判定(晴天、雨天、雪天など)
+- **空気質の重み: 30%** - AQI指数に基づいて空気汚染度を評価
+- **湿度の重み: 10%** - 人体の快適度を考慮(最適範囲40-70%)
+- **風速の重み: 10%** - 風の影響を評価(最適範囲<5m/s)
 
-最终输出一个综合的散步适合度指数，并给出具体建议。
+最終的に総合的な散歩適性指数を出力し、具体的な提案を提供します。
 
-## 📁 项目结构
+## 📁 プロジェクト構造
 
 ```
 .
 ├── backend/
-│   ├── app.py              # Flask后端应用
-│   ├── requirements.txt    # Python依赖
-│   └── .env.example        # 环境变量示例
+│   ├── app.py              # Flaskバックエンドアプリケーション
+│   ├── requirements.txt    # Python依存関係
+│   └── .env.example        # 環境変数サンプル
 ├── documentation/
-│   ├── api-docs.html       # 交互式API文档
-│   └── api-docs.yml        # OpenAPI规范
+│   ├── api-docs.html       # インタラクティブAPIドキュメント
+│   └── api-docs.yml        # OpenAPI仕様
 ├── frontend/
-│   └── index.html          # Web前端界面
-└── README_PROJECT.md       # 项目说明文档
+│   └── index.html          # Webフロントエンドインターフェース
+└── README_PROJECT.md       # プロジェクト説明ドキュメント
 ```
 
-## 🚀 快速开始
+## 🚀 クイックスタート
 
-### 前置要求
+### 前提条件
 
 - Python 3.8+
-- pip (Python包管理器)
+- pip (Pythonパッケージマネージャー)
 
-### 1. 获取API密钥
+### 1. APIキーの取得
 
 #### OpenWeatherMap API
-1. 访问 https://openweathermap.org/api
-2. 注册免费账号
-3. 在"API keys"页面获取您的API密钥
+1. https://openweathermap.org/api にアクセス
+2. 無料アカウントを登録
+3. "API keys"ページでAPIキーを取得
 
 #### World Air Quality Index API
-1. 访问 https://aqicn.org/api/
-2. 填写申请表单获取免费API Token
-3. 通常会立即通过邮件收到Token
+1. https://aqicn.org/api/ にアクセス
+2. 申請フォームに記入して無料APIトークンを取得
+3. 通常、すぐにメールでトークンが送信されます
 
-### 2. 安装依赖
+### 2. 依存関係のインストール
 
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-### 3. 配置环境变量
+### 3. 環境変数の設定
 
 ```bash
-# 复制环境变量示例文件
+# 環境変数サンプルファイルをコピー
 cp .env.example .env
 
-# 编辑.env文件，填入您的API密钥
-# OPENWEATHER_API_KEY=你的OpenWeatherMap密钥
-# WAQI_API_KEY=你的WAQI密钥
+# .envファイルを編集し、APIキーを入力
+# OPENWEATHER_API_KEY=あなたのOpenWeatherMapキー
+# WAQI_API_KEY=あなたのWAQIキー
 ```
 
-或者直接在app.py中修改API密钥（不推荐用于生产环境）：
+または、app.pyで直接APIキーを変更(本番環境には推奨されません):
 
 ```python
 OPENWEATHER_API_KEY = 'your_actual_api_key_here'
 WAQI_API_KEY = 'your_actual_token_here'
 ```
 
-### 4. 启动后端服务
+### 4. バックエンドサービスの起動
 
 ```bash
 cd backend
 python app.py
 ```
 
-服务将在 http://localhost:5000 启动
+サービスは http://localhost:5000 で起動します
 
-### 5. 访问前端界面
+### 5. フロントエンドインターフェースへアクセス
 
-在浏览器中打开：
+ブラウザで開く:
 ```
 frontend/index.html
 ```
 
-或者使用简单的HTTP服务器：
+またはシンプルなHTTPサーバーを使用:
 ```bash
 cd frontend
 python -m http.server 8080
-# 然后访问 http://localhost:8080
+# その後 http://localhost:8080 にアクセス
 ```
 
-### 6. 查看API文档
+### 6. APIドキュメントの表示
 
-在浏览器中打开：
+ブラウザで開く:
 ```
 documentation/api-docs.html
 ```
 
-## 📡 API端点
+## 📡 APIエンドポイント
 
-### 1. 获取散步适合度指数
+### 1. 散歩適性指数の取得
 ```
 GET /api/walk-suitability?city={city_name}
 ```
 
-**示例:**
+**例:**
 ```bash
 curl "http://localhost:5000/api/walk-suitability?city=Tokyo"
 ```
 
-**响应:**
+**レスポンス:**
 ```json
 {
   "success": true,
@@ -140,9 +140,9 @@ curl "http://localhost:5000/api/walk-suitability?city=Tokyo"
   "timestamp": "2025-11-19T10:30:00",
   "suitability": {
     "score": 85.5,
-    "level": "非常适合",
-    "recommendation": "现在是散步的绝佳时机！",
-    "reasons": ["天气和空气质量都很好"],
+    "level": "非常に適している",
+    "recommendation": "今は散歩に最適な時間です！",
+    "reasons": ["天気と空気質が両方とも良好です"],
     "details": {
       "temperature_score": 100.0,
       "weather_score": 100.0,
@@ -170,114 +170,114 @@ curl "http://localhost:5000/api/walk-suitability?city=Tokyo"
 }
 ```
 
-### 2. 获取天气数据
+### 2. 天気データの取得
 ```
 GET /api/weather?city={city_name}
 ```
 
-### 3. 获取空气质量数据
+### 3. 空気質データの取得
 ```
 GET /api/air-quality?city={city_name}
 ```
 
-### 4. 健康检查
+### 4. ヘルスチェック
 ```
 GET /health
 ```
 
-## 📊 评分标准
+## 📊 評価基準
 
-| 分数范围 | 等级 | 建议 |
+| スコア範囲 | レベル | 提案 |
 |---------|------|------|
-| 80-100  | 非常适合 | 现在是散步的绝佳时机！ |
-| 60-79   | 适合 | 适合散步，请注意某些情况 |
-| 40-59   | 一般 | 可以散步，但条件不是很理想 |
-| 0-39    | 不适合 | 建议推迟散步计划 |
+| 80-100  | 非常に適している | 今は散歩に最適な時間です！ |
+| 60-79   | 適している | 散歩に適していますが、一部の状況に注意してください |
+| 40-59   | 普通 | 散歩できますが、条件はあまり理想的ではありません |
+| 0-39    | 不適 | 散歩計画を延期することをお勧めします |
 
-## 🎨 功能特性
+## 🎨 機能特性
 
-- ✅ 整合两个真实的开源API
-- ✅ 智能的数据融合算法
-- ✅ 完整的OpenAPI文档
-- ✅ 交互式API文档页面（Swagger UI）
-- ✅ 美观的Web前端界面
-- ✅ 实时数据查询
-- ✅ 多城市支持
-- ✅ 详细的评分解释
-- ✅ CORS支持
+- ✅ 2つの実際のオープンソースAPIを統合
+- ✅ インテリジェントなデータ融合アルゴリズム
+- ✅ 完全なOpenAPIドキュメント
+- ✅ インタラクティブAPIドキュメントページ(Swagger UI)
+- ✅ 美しいWebフロントエンドインターフェース
+- ✅ リアルタイムデータクエリ
+- ✅ 複数都市対応
+- ✅ 詳細なスコア説明
+- ✅ CORSサポート
 
-## 🛠️ 技术栈
+## 🛠️ 技術スタック
 
-### 后端
-- **Flask** - Python Web框架
-- **Flask-CORS** - 跨域资源共享支持
-- **Requests** - HTTP客户端库
+### バックエンド
+- **Flask** - Python Webフレームワーク
+- **Flask-CORS** - クロスオリジンリソース共有サポート
+- **Requests** - HTTPクライアントライブラリ
 
-### 前端
-- **原生HTML/CSS/JavaScript** - 无需额外框架
-- **Swagger UI** - API文档展示
+### フロントエンド
+- **ネイティブHTML/CSS/JavaScript** - 追加フレームワーク不要
+- **Swagger UI** - APIドキュメント表示
 
-### API文档
-- **OpenAPI 3.0.3** - API规范标准
+### APIドキュメント
+- **OpenAPI 3.0.3** - API仕様標準
 
-## 🔧 开发说明
+## 🔧 開発説明
 
-### 添加新的评分因素
+### 新しい評価要素の追加
 
-在`app.py`的`calculate_walk_suitability`函数中添加新的评分逻辑：
+`app.py`の`calculate_walk_suitability`関数に新しい評価ロジックを追加:
 
 ```python
 def calculate_walk_suitability(weather_data, air_quality_data):
-    # 添加新的评分因素
+    # 新しい評価要素を追加
     new_factor_score = calculate_new_factor(weather_data)
 
-    # 更新权重
+    # 重みを更新
     weights = {
         'temp': 0.20,
         'weather': 0.20,
         'humidity': 0.10,
         'wind': 0.10,
         'aqi': 0.30,
-        'new_factor': 0.10  # 新增
+        'new_factor': 0.10  # 新規追加
     }
 
-    # 更新最终评分计算
+    # 最終スコア計算を更新
     final_score = (
         temp_score * weights['temp'] +
-        # ... 其他因素
+        # ... その他の要素
         new_factor_score * weights['new_factor']
     )
 ```
 
-### 支持更多城市
+### より多くの都市対応
 
-API支持所有OpenWeatherMap和WAQI支持的城市。只需在查询参数中传入城市名称（英文）即可。
+APIはOpenWeatherMapとWAQIがサポートするすべての都市に対応しています。クエリパラメータに都市名(英語)を渡すだけで使用できます。
 
-### 自定义评分标准
+### カスタム評価基準
 
-修改`calculate_walk_suitability`函数中的评分逻辑来自定义评分标准。
+`calculate_walk_suitability`関数の評価ロジックを変更することで、評価基準をカスタマイズできます。
 
-## 📝 注意事项
+## 📝 注意事項
 
-1. **API限制**: 免费API有调用次数限制，请勿频繁请求
-2. **城市名称**: 使用英文城市名称查询（如Tokyo, Beijing, London）
-3. **数据准确性**: 数据来自第三方API，准确性取决于数据源
-4. **CORS**: 已配置CORS支持，可从任何域名访问API
+1. **API制限**: 無料APIには呼び出し回数制限があります、頻繁にリクエストしないでください
+2. **都市名**: 英語の都市名を使用してクエリ(例: Tokyo, Beijing, London)
+3. **データ精度**: データはサードパーティAPIから取得され、精度はデータソースに依存します
+4. **CORS**: CORSサポートが設定されており、任意のドメインからAPIにアクセスできます
 
-## 🤝 贡献
+## 🤝 貢献
 
-欢迎提交Issue和Pull Request！
+IssueとPull Requestの提出を歓迎します！
 
-## 📄 许可证
+## 📄 ライセンス
 
 MIT License
 
-## 👤 作者
+## 👤 著者
 
-[您的姓名/学号]
+[あなたの名前/学籍番号]
 
-## 🙏 致谢
+## 🙏 謝辞
 
-- OpenWeatherMap - 提供天气数据API
-- World Air Quality Index - 提供空气质量数据API
-- Flask - 优秀的Python Web框架
+- OpenWeatherMap - 天気データAPIを提供
+- World Air Quality Index - 空気質データAPIを提供
+- Flask - 優れたPython Webフレームワーク

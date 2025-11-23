@@ -8,24 +8,24 @@ CORS(app)
 
 def get_weather_data(city):
     """
-    获取天气数据 (Open-Meteo API - 完全免费，无需token)
-    使用geocoding获取坐标，然后获取天气
+    天気データ取得 (Open-Meteo API - 完全無料、トークン不要)
+    ジオコーディングで座標を取得し、天気データを取得
     """
     try:
-        # 1. 先通过城市名获取坐标
+        # 1. まず都市名から座標を取得
         geocode_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=zh&format=json"
         geo_response = requests.get(geocode_url, timeout=10)
         geo_response.raise_for_status()
         geo_data = geo_response.json()
 
         if not geo_data.get('results'):
-            raise Exception(f"找不到城市: {city}")
+            raise Exception(f"都市が見つかりません: {city}")
 
         location = geo_data['results'][0]
         lat = location['latitude']
         lon = location['longitude']
 
-        # 2. 使用坐标获取天气数据
+        # 2. 座標を使用して天気データを取得
         weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,wind_speed_10m&timezone=auto"
         weather_response = requests.get(weather_url, timeout=10)
         weather_response.raise_for_status()
@@ -33,7 +33,7 @@ def get_weather_data(city):
 
         current = weather_data['current']
 
-        # 天气代码映射
+        # 天気コードマッピング
         weather_code_map = {
             0: ('Clear', 'clear sky'),
             1: ('Clouds', 'mainly clear'),
@@ -73,27 +73,27 @@ def get_weather_data(city):
             'country': location.get('country', '')
         }
     except Exception as e:
-        raise Exception(f"天气数据获取失败: {str(e)}")
+        raise Exception(f"天気データ取得失敗: {str(e)}")
 
 def get_air_quality_data(city):
     """
-    获取空气质量数据 (Open-Meteo Air Quality API - 完全免费，无需token)
+    空気質データ取得 (Open-Meteo Air Quality API - 完全無料、トークン不要)
     """
     try:
-        # 1. 先通过城市名获取坐标
+        # 1. まず都市名から座標を取得
         geocode_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=zh&format=json"
         geo_response = requests.get(geocode_url, timeout=10)
         geo_response.raise_for_status()
         geo_data = geo_response.json()
 
         if not geo_data.get('results'):
-            raise Exception(f"找不到城市: {city}")
+            raise Exception(f"都市が見つかりません: {city}")
 
         location = geo_data['results'][0]
         lat = location['latitude']
         lon = location['longitude']
 
-        # 2. 使用坐标获取空气质量数据
+        # 2. 座標を使用して空気質データを取得
         air_url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,us_aqi,european_aqi&timezone=auto"
         air_response = requests.get(air_url, timeout=10)
         air_response.raise_for_status()
@@ -101,7 +101,7 @@ def get_air_quality_data(city):
 
         current = air_data['current']
 
-        # 使用美国AQI标准
+        # 米国AQI基準を使用
         aqi = current.get('us_aqi', current.get('european_aqi', 50))
 
         return {
@@ -113,47 +113,47 @@ def get_air_quality_data(city):
             'co': current.get('carbon_monoxide')
         }
     except Exception as e:
-        raise Exception(f"空气质量数据获取失败: {str(e)}")
+        raise Exception(f"空気質データ取得失敗: {str(e)}")
 
 def calculate_walk_suitability(weather_data, air_quality_data):
     """
-    计算散步适合度指数 (0-100)
-    综合考虑温度、天气状况、湿度、风速、空气质量
+    散歩適性指数を計算 (0-100)
+    気温、天気状況、湿度、風速、空気質を総合的に考慮
     """
     score = 100
     reasons = []
 
-    # 1. 温度评分 (最佳温度: 15-25°C)
+    # 1. 気温評価 (最適気温: 15-25°C)
     temp = weather_data['temperature']
     if 15 <= temp <= 25:
         temp_score = 100
     elif 10 <= temp < 15 or 25 < temp <= 30:
         temp_score = 80
-        reasons.append(f"温度{temp}°C略微不太理想")
+        reasons.append(f"気温{temp}°Cはやや理想的ではありません")
     elif 5 <= temp < 10 or 30 < temp <= 35:
         temp_score = 60
-        reasons.append(f"温度{temp}°C较为极端")
+        reasons.append(f"気温{temp}°Cはかなり極端です")
     else:
         temp_score = 30
-        reasons.append(f"温度{temp}°C非常不适合")
+        reasons.append(f"気温{temp}°Cは非常に不適です")
 
-    # 2. 天气状况评分
+    # 2. 天気状況評価
     weather_main = weather_data['weather']
     if weather_main in ['Clear', 'Clouds']:
         weather_score = 100
     elif weather_main in ['Mist', 'Haze', 'Fog']:
         weather_score = 70
-        reasons.append("天气有雾霾")
+        reasons.append("天気に霧や靄があります")
     elif weather_main in ['Drizzle', 'Rain']:
         weather_score = 40
-        reasons.append("正在下雨")
+        reasons.append("雨が降っています")
     elif weather_main in ['Thunderstorm', 'Snow']:
         weather_score = 20
-        reasons.append(f"恶劣天气: {weather_main}")
+        reasons.append(f"悪天候: {weather_main}")
     else:
         weather_score = 60
 
-    # 3. 湿度评分 (最佳湿度: 40-70%)
+    # 3. 湿度評価 (最適湿度: 40-70%)
     humidity = weather_data['humidity']
     if 40 <= humidity <= 70:
         humidity_score = 100
@@ -162,47 +162,47 @@ def calculate_walk_suitability(weather_data, air_quality_data):
     else:
         humidity_score = 60
         if humidity > 80:
-            reasons.append(f"湿度{humidity}%过高")
+            reasons.append(f"湿度{humidity}%は高すぎます")
         else:
-            reasons.append(f"湿度{humidity}%过低")
+            reasons.append(f"湿度{humidity}%は低すぎます")
 
-    # 4. 风速评分 (最佳风速: < 5 m/s)
+    # 4. 風速評価 (最適風速: < 5 m/s)
     wind_speed = weather_data['wind_speed']
     if wind_speed < 5:
         wind_score = 100
     elif 5 <= wind_speed < 10:
         wind_score = 70
-        reasons.append(f"风速{wind_speed}m/s较大")
+        reasons.append(f"風速{wind_speed}m/sはやや強いです")
     else:
         wind_score = 40
-        reasons.append(f"风速{wind_speed}m/s很大")
+        reasons.append(f"風速{wind_speed}m/sは非常に強いです")
 
-    # 5. 空气质量评分
+    # 5. 空気質評価
     aqi = air_quality_data['aqi']
     if aqi <= 50:
         aqi_score = 100
-        aqi_level = "优秀"
+        aqi_level = "優秀"
     elif aqi <= 100:
         aqi_score = 80
         aqi_level = "良好"
     elif aqi <= 150:
         aqi_score = 60
-        aqi_level = "中等"
-        reasons.append(f"空气质量{aqi_level} (AQI: {aqi})")
+        aqi_level = "普通"
+        reasons.append(f"空気質{aqi_level} (AQI: {aqi})")
     elif aqi <= 200:
         aqi_score = 40
-        aqi_level = "较差"
-        reasons.append(f"空气质量{aqi_level} (AQI: {aqi})")
+        aqi_level = "やや悪い"
+        reasons.append(f"空気質{aqi_level} (AQI: {aqi})")
     elif aqi <= 300:
         aqi_score = 20
-        aqi_level = "差"
-        reasons.append(f"空气质量{aqi_level} (AQI: {aqi})")
+        aqi_level = "悪い"
+        reasons.append(f"空気質{aqi_level} (AQI: {aqi})")
     else:
         aqi_score = 10
-        aqi_level = "严重污染"
-        reasons.append(f"空气质量{aqi_level} (AQI: {aqi})")
+        aqi_level = "深刻な汚染"
+        reasons.append(f"空気質{aqi_level} (AQI: {aqi})")
 
-    # 综合评分 (加权平均)
+    # 総合評価 (加重平均)
     weights = {
         'temp': 0.25,
         'weather': 0.25,
@@ -219,25 +219,25 @@ def calculate_walk_suitability(weather_data, air_quality_data):
         aqi_score * weights['aqi']
     )
 
-    # 确定适合度等级
+    # 適性レベルを決定
     if final_score >= 80:
-        level = "非常适合"
-        recommendation = "现在是散步的绝佳时机！"
+        level = "非常に適している"
+        recommendation = "今は散歩に最適な時間です！"
     elif final_score >= 60:
-        level = "适合"
-        recommendation = "适合散步，请注意以下情况。"
+        level = "適している"
+        recommendation = "散歩に適していますが、以下の状況にご注意ください。"
     elif final_score >= 40:
-        level = "一般"
-        recommendation = "可以散步，但条件不是很理想。"
+        level = "普通"
+        recommendation = "散歩できますが、条件はあまり理想的ではありません。"
     else:
-        level = "不适合"
-        recommendation = "建议推迟散步计划。"
+        level = "不適"
+        recommendation = "散歩計画を延期することをお勧めします。"
 
     return {
         'score': round(final_score, 1),
         'level': level,
         'recommendation': recommendation,
-        'reasons': reasons if reasons else ["天气和空气质量都很好"],
+        'reasons': reasons if reasons else ["天気と空気質が両方とも良好です"],
         'details': {
             'temperature_score': round(temp_score, 1),
             'weather_score': round(weather_score, 1),
@@ -250,28 +250,28 @@ def calculate_walk_suitability(weather_data, air_quality_data):
 @app.route('/')
 def index():
     """
-    API根路径
+    APIルートパス
     """
     return jsonify({
         'service': 'Walk Suitability API (No Token Required)',
         'version': '2.0.0',
-        'description': '散步适合度指数服务 - 使用完全免费的开放API，无需注册token',
+        'description': '散歩適性指数サービス - 完全無料のオープンAPIを使用、トークン登録不要',
         'apis_used': {
             'weather': 'Open-Meteo Weather API (https://open-meteo.com)',
             'air_quality': 'Open-Meteo Air Quality API (https://open-meteo.com)'
         },
         'endpoints': {
-            '/api/walk-suitability': 'GET - 获取城市的散步适合度指数',
-            '/api/weather': 'GET - 获取天气数据',
-            '/api/air-quality': 'GET - 获取空气质量数据',
-            '/health': 'GET - 健康检查'
+            '/api/walk-suitability': 'GET - 都市の散歩適性指数を取得',
+            '/api/weather': 'GET - 天気データを取得',
+            '/api/air-quality': 'GET - 空気質データを取得',
+            '/health': 'GET - ヘルスチェック'
         }
     })
 
 @app.route('/health')
 def health():
     """
-    健康检查端点
+    ヘルスチェックエンドポイント
     """
     return jsonify({
         'status': 'healthy',
@@ -281,7 +281,7 @@ def health():
 @app.route('/api/weather')
 def get_weather():
     """
-    获取指定城市的天气数据
+    指定都市の天気データを取得
     """
     city = request.args.get('city', 'Tokyo')
 
@@ -302,7 +302,7 @@ def get_weather():
 @app.route('/api/air-quality')
 def get_air_quality():
     """
-    获取指定城市的空气质量数据
+    指定都市の空気質データを取得
     """
     city = request.args.get('city', 'Tokyo')
 
@@ -323,17 +323,17 @@ def get_air_quality():
 @app.route('/api/walk-suitability')
 def get_walk_suitability():
     """
-    获取指定城市的散步适合度指数
-    整合天气和空气质量数据，计算综合评分
+    指定都市の散歩適性指数を取得
+    天気と空気質データを統合し、総合評価を計算
     """
     city = request.args.get('city', 'Tokyo')
 
     try:
-        # 获取天气和空气质量数据
+        # 天気と空気質データを取得
         weather_data = get_weather_data(city)
         air_quality_data = get_air_quality_data(city)
 
-        # 计算散步适合度
+        # 散歩適性を計算
         suitability = calculate_walk_suitability(weather_data, air_quality_data)
 
         return jsonify({
@@ -352,14 +352,14 @@ def get_walk_suitability():
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("🎉 Walk Suitability API - No Token Required!")
+    print("🎉 Walk Suitability API - トークン不要!")
     print("=" * 60)
-    print("✅ 使用完全免费的Open-Meteo API")
-    print("✅ 无需注册，无需API密钥")
-    print("✅ 立即可用")
+    print("✅ 完全無料のOpen-Meteo APIを使用")
+    print("✅ 登録不要、APIキー不要")
+    print("✅ すぐに使用可能")
     print("=" * 60)
-    print("📡 服务启动在: http://localhost:5000")
-    print("🌐 前端界面: 打开 frontend/index.html")
-    print("📚 API文档: 打开 documentation/api-docs.html")
+    print("📡 サービス起動: http://localhost:5000")
+    print("🌐 フロントエンドインターフェース: frontend/index.html を開く")
+    print("📚 APIドキュメント: documentation/api-docs.html を開く")
     print("=" * 60)
     app.run(debug=True, host='0.0.0.0', port=5000)

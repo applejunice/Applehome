@@ -1,164 +1,152 @@
-# 🚀 快速设置指南
+# 🚀 クイックセットアップガイド
 
-## 第一步：获取API密钥
+## ⚡ クイックスタート(3つのステップ)
 
-### 1. OpenWeatherMap API密钥
+### 第一ステップ: APIキーの取得(10分)
 
-1. 访问 https://openweathermap.org/api
-2. 点击 "Sign Up" 注册免费账号
-3. 登录后，进入 "API keys" 标签页
-4. 复制您的API密钥（或创建新的）
+> **詳細な手順は `GET_API_KEYS.md` を参照してください**
 
-### 2. World Air Quality Index API密钥
+**OpenWeatherMap API:**
+1. 登録: https://home.openweathermap.org/users/sign_up
+2. メール認証
+3. API Keyを取得: https://home.openweathermap.org/api_keys
+4. ⚠️ **新しいキーは有効化まで10分-2時間待つ必要があります**
 
-1. 访问 https://aqicn.org/api/
-2. 填写申请表单（姓名和邮箱）
-3. 立即会通过邮件收到您的API Token
+**WAQI API:**
+1. 申請: https://aqicn.org/data-platform/token/
+2. 名前とメールを記入
+3. すぐにTokenを取得(メールでも送信されます)
 
-## 第二步：配置项目
+### 第二ステップ: APIキーの設定(1分)
 
-### 方法A：使用环境变量（推荐）
+**推奨方法: コードを直接修正**
 
-```bash
-# 1. 进入backend目录
-cd backend
-
-# 2. 复制环境变量模板
-cp .env.example .env
-
-# 3. 编辑.env文件，填入您的API密钥
-# 使用任何文本编辑器打开.env文件
-# 替换 your_openweather_api_key_here 为您的OpenWeatherMap密钥
-# 替换 your_waqi_api_key_here 为您的WAQI密钥
-```
-
-### 方法B：直接修改代码
-
-打开 `backend/app.py`，找到第12-13行：
+1. テキストエディタで `backend/app.py` を開く
+2. 12-13行目を見つけて、実際のキーに置き換える:
 
 ```python
+# 修正前:
 OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', 'your_openweather_api_key_here')
 WAQI_API_KEY = os.getenv('WAQI_API_KEY', 'your_waqi_api_key_here')
+
+# 修正後(例):
+OPENWEATHER_API_KEY = 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6'  # あなたのキーに置き換え
+WAQI_API_KEY = '1234567890abcdef1234567890abcdef12345678'  # あなたのTokenに置き換え
 ```
 
-替换为：
+3. ファイルを保存
 
-```python
-OPENWEATHER_API_KEY = '您的OpenWeatherMap密钥'
-WAQI_API_KEY = '您的WAQI密钥'
-```
-
-## 第三步：安装依赖
+## 第三ステップ: 依存関係のインストール
 
 ```bash
-# 确保您在backend目录下
+# backendディレクトリにいることを確認
 cd backend
 
-# 安装Python依赖
+# Python依存関係をインストール
 pip install -r requirements.txt
 
-# 或使用pip3
+# またはpip3を使用
 pip3 install -r requirements.txt
 ```
 
-## 第四步：启动服务
+## 第四ステップ: サービスの起動
 
 ```bash
-# 启动后端服务
+# バックエンドサービスを起動
 python app.py
 
-# 或使用python3
+# またはpython3を使用
 python3 app.py
 ```
 
-您应该看到类似输出：
+以下のような出力が表示されるはずです:
 ```
  * Running on http://0.0.0.0:5000
  * Running on http://127.0.0.1:5000
 ```
 
-## 第五步：测试API
+## 第五ステップ: APIのテスト
 
-### 使用浏览器测试
+### ブラウザでテスト
 
-在浏览器中访问：
+ブラウザで開く:
 ```
 http://localhost:5000/api/walk-suitability?city=Tokyo
 ```
 
-### 使用curl测试
+### curlでテスト
 
 ```bash
 curl "http://localhost:5000/api/walk-suitability?city=Tokyo"
 ```
 
-### 使用前端界面
+### フロントエンドインターフェースを使用
 
-1. 保持后端服务运行
-2. 在浏览器中打开 `frontend/index.html`
-3. 输入城市名称并点击"查询"
+1. バックエンドサービスを実行したまま
+2. ブラウザで `frontend/index.html` を開く
+3. 都市名を入力して"查询"をクリック
 
-### 查看API文档
+### APIドキュメントを表示
 
-在浏览器中打开 `documentation/api-docs.html` 查看完整的交互式API文档。
+ブラウザで `documentation/api-docs.html` を開き、完全なインタラクティブAPIドキュメントを確認。
 
-## 常见问题
+## よくある質問
 
-### Q: 出现 "ModuleNotFoundError: No module named 'flask'"
+### Q: "ModuleNotFoundError: No module named 'flask'" が出る
 
-**A:** 需要安装依赖：
+**A:** 依存関係をインストールする必要があります:
 ```bash
 pip install -r requirements.txt
 ```
 
-### Q: API返回错误 "天气数据获取失败"
+### Q: APIが "天気データ取得失敗" エラーを返す
 
-**A:** 检查以下几点：
-1. 确认API密钥是否正确配置
-2. 确认网络连接正常
-3. 确认城市名称使用英文（如 Tokyo, Beijing）
+**A:** 以下の点を確認してください:
+1. APIキーが正しく設定されているか確認
+2. ネットワーク接続が正常か確認
+3. 都市名は英語を使用(例: Tokyo, Beijing)
 
-### Q: 前端无法连接后端
+### Q: フロントエンドがバックエンドに接続できない
 
-**A:** 确保：
-1. 后端服务正在运行（http://localhost:5000）
-2. 浏览器允许CORS跨域请求
-3. 检查浏览器控制台是否有错误信息
+**A:** 以下を確認:
+1. バックエンドサービスが実行中か(http://localhost:5000)
+2. ブラウザがCORSクロスドメインリクエストを許可しているか
+3. ブラウザコンソールにエラーメッセージがないか確認
 
-### Q: 如何更换查询城市？
+### Q: 都市の検索を変更するには？
 
 **A:**
-- 在前端界面直接输入城市名称（英文）
-- 或在API请求中修改city参数
-- 支持的城市示例：Tokyo, Beijing, Shanghai, London, Paris, New York, Seoul
+- フロントエンドインターフェースで直接都市名を入力(英語)
+- またはAPIリクエストでcityパラメータを変更
+- 対応都市例: Tokyo, Beijing, Shanghai, London, Paris, New York, Seoul
 
-## 支持的城市列表（部分）
+## 対応都市リスト(一部)
 
-### 亚洲
+### アジア
 - Tokyo, Osaka (日本)
 - Beijing, Shanghai, Guangzhou, Shenzhen (中国)
-- Seoul, Busan (韩国)
-- Singapore (新加坡)
-- Bangkok (泰国)
-- Hanoi, Ho Chi Minh City (越南)
+- Seoul, Busan (韓国)
+- Singapore (シンガポール)
+- Bangkok (タイ)
+- Hanoi, Ho Chi Minh City (ベトナム)
 
-### 欧洲
-- London (英国)
-- Paris (法国)
-- Berlin (德国)
-- Rome (意大利)
-- Madrid (西班牙)
+### ヨーロッパ
+- London (イギリス)
+- Paris (フランス)
+- Berlin (ドイツ)
+- Rome (イタリア)
+- Madrid (スペイン)
 
-### 美洲
-- New York, Los Angeles, Chicago (美国)
-- Toronto (加拿大)
+### アメリカ
+- New York, Los Angeles, Chicago (米国)
+- Toronto (カナダ)
 
-### 大洋洲
-- Sydney, Melbourne (澳大利亚)
+### オセアニア
+- Sydney, Melbourne (オーストラリア)
 
-## 下一步
+## 次のステップ
 
-- 查看 `README_PROJECT.md` 了解项目详细信息
-- 查看 `documentation/api-docs.html` 了解完整API文档
-- 尝试不同城市的查询
-- 根据需要自定义评分算法
+- `README_PROJECT.md` でプロジェクト詳細を確認
+- `documentation/api-docs.html` で完全なAPIドキュメントを確認
+- 異なる都市のクエリを試す
+- 必要に応じて評価アルゴリズムをカスタマイズ

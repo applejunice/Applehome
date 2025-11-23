@@ -1,192 +1,192 @@
-# 散步适合度指数 API
+# 散歩適性指数 API
 
-## 🎯 项目简介
+## 🎯 プロジェクト概要
 
-这是一个智能的Web服务，通过整合**OpenWeatherMap**天气API和**World Air Quality Index**空气质量API，为用户提供科学的散步建议。
+これは**OpenWeatherMap**天気APIと**World Air Quality Index**空気質APIを統合し、ユーザーに科学的な散歩提案を提供するインテリジェントなWebサービスです。
 
-### 核心功能
+### コア機能
 
-输入城市名称 → 获取天气数据 + 空气质量数据 → 融合计算 → 输出散步适合度指数（0-100分）
+都市名入力 → 天気データ取得 + 空気質データ取得 → 融合計算 → 散歩適性指数出力(0-100点)
 
-## 📊 数据融合算法
+## 📊 データ融合アルゴリズム
 
-| 评分因素 | 权重 | 说明 |
+| 評価要素 | 重み | 説明 |
 |---------|------|------|
-| 温度 | 25% | 最佳范围: 15-25°C |
-| 天气状况 | 25% | 晴天最佳，雨雪降分 |
-| 空气质量 | 30% | 根据AQI指数评估 |
-| 湿度 | 10% | 最佳范围: 40-70% |
-| 风速 | 10% | 最佳范围: <5m/s |
+| 気温 | 25% | 最適範囲: 15-25°C |
+| 天気状況 | 25% | 晴天が最適、雨雪で減点 |
+| 空気質 | 30% | AQI指数で評価 |
+| 湿度 | 10% | 最適範囲: 40-70% |
+| 風速 | 10% | 最適範囲: <5m/s |
 
-**最终得分 = 加权平均**
+**最終スコア = 加重平均**
 
-## 🚀 3分钟快速开始
+## 🚀 3分クイックスタート
 
-### 1️⃣ 获取免费API密钥
+### 1️⃣ 無料APIキーの取得
 
 **OpenWeatherMap:**
-- 访问: https://openweathermap.org/api
-- 注册并获取API Key
+- アクセス: https://openweathermap.org/api
+- 登録してAPI Keyを取得
 
 **World Air Quality Index:**
-- 访问: https://aqicn.org/api/
-- 填表获取Token（立即发送到邮箱）
+- アクセス: https://aqicn.org/api/
+- フォーム記入でToken取得(すぐにメールで送信されます)
 
-### 2️⃣ 配置API密钥
+### 2️⃣ APIキーの設定
 
-编辑 `backend/app.py` 第12-13行：
+`backend/app.py` の12-13行目を編集:
 
 ```python
-OPENWEATHER_API_KEY = '你的OpenWeatherMap密钥'
-WAQI_API_KEY = '你的WAQI密钥'
+OPENWEATHER_API_KEY = 'あなたのOpenWeatherMapキー'
+WAQI_API_KEY = 'あなたのWAQIキー'
 ```
 
-### 3️⃣ 安装并运行
+### 3️⃣ インストールと実行
 
 ```bash
-# 安装依赖
+# 依存関係をインストール
 cd backend
 pip install -r requirements.txt
 
-# 启动服务
+# サービス起動
 python app.py
 ```
 
-### 4️⃣ 访问界面
+### 4️⃣ インターフェースへアクセス
 
-- **前端界面**: 用浏览器打开 `frontend/index.html`
-- **API文档**: 用浏览器打开 `documentation/api-docs.html`
+- **フロントエンド**: ブラウザで `frontend/index.html` を開く
+- **APIドキュメント**: ブラウザで `documentation/api-docs.html` を開く
 
-## 📱 使用示例
+## 📱 使用例
 
-### 网页界面
-1. 打开 `frontend/index.html`
-2. 输入城市名称（如：Tokyo, Beijing, London）
-3. 点击"查询"按钮
-4. 查看散步适合度指数和详细数据
+### Webインターフェース
+1. `frontend/index.html` を開く
+2. 都市名を入力(例: Tokyo, Beijing, London)
+3. "查询"ボタンをクリック
+4. 散歩適性指数と詳細データを確認
 
-### API调用
+### API呼び出し
 ```bash
 curl "http://localhost:5000/api/walk-suitability?city=Tokyo"
 ```
 
-**响应示例:**
+**レスポンス例:**
 ```json
 {
   "success": true,
   "city": "Tokyo",
   "suitability": {
     "score": 85.5,
-    "level": "非常适合",
-    "recommendation": "现在是散步的绝佳时机！"
+    "level": "非常に適している",
+    "recommendation": "今は散歩に最適な時間です！"
   }
 }
 ```
 
-## 📁 项目结构
+## 📁 プロジェクト構造
 
 ```
 .
-├── backend/              # 后端服务
-│   ├── app.py           # Flask应用
-│   ├── requirements.txt # 依赖列表
-│   └── test_api.py      # 测试脚本
+├── backend/              # バックエンドサービス
+│   ├── app.py           # Flaskアプリケーション
+│   ├── requirements.txt # 依存関係リスト
+│   └── test_api.py      # テストスクリプト
 │
-├── documentation/        # API文档
-│   ├── api-docs.yml     # OpenAPI规范
-│   └── api-docs.html    # 交互式文档
+├── documentation/        # APIドキュメント
+│   ├── api-docs.yml     # OpenAPI仕様
+│   └── api-docs.html    # インタラクティブドキュメント
 │
-├── frontend/            # 前端界面
-│   └── index.html       # Web界面
+├── frontend/            # フロントエンドインターフェース
+│   └── index.html       # Webインターフェース
 │
-├── report/              # 报告文件夹
+├── report/              # レポートフォルダ
 │
-└── README_PROJECT.md    # 详细说明
+└── README_PROJECT.md    # 詳細説明
 ```
 
-## 🎓 作业要求对照
+## 🎓 課題要件対照
 
-✅ **调用2个以上公共API**
-- OpenWeatherMap API (天气)
-- World Air Quality Index API (空气质量)
+✅ **2つ以上の公開APIを呼び出し**
+- OpenWeatherMap API (天気)
+- World Air Quality Index API (空気質)
 
-✅ **数据融合**
-- 加权算法融合5个维度数据
-- 生成独特的散步适合度指数
+✅ **データ融合**
+- 加重アルゴリズムで5次元データを融合
+- ユニークな散歩適性指数を生成
 
-✅ **OpenAPI文档 (YAML)**
+✅ **OpenAPIドキュメント (YAML)**
 - `documentation/api-docs.yml`
 
-✅ **交互式API文档**
+✅ **インタラクティブAPIドキュメント**
 - `documentation/api-docs.html`
-- 基于Swagger UI
+- Swagger UIベース
 
-✅ **Web前端**
+✅ **Webフロントエンド**
 - `frontend/index.html`
-- 美观且响应式设计
+- 美しくレスポンシブなデザイン
 
-## 🛠️ 技术栈
+## 🛠️ 技術スタック
 
-- **后端**: Python + Flask + Flask-CORS
-- **前端**: HTML + CSS + JavaScript
-- **API文档**: OpenAPI 3.0 + Swagger UI
-- **第三方API**: OpenWeatherMap + WAQI
+- **バックエンド**: Python + Flask + Flask-CORS
+- **フロントエンド**: HTML + CSS + JavaScript
+- **APIドキュメント**: OpenAPI 3.0 + Swagger UI
+- **サードパーティAPI**: OpenWeatherMap + WAQI
 
-## 📖 文档说明
+## 📖 ドキュメント説明
 
-- `README_PROJECT.md` - 完整的项目文档（英文）
-- `SETUP_GUIDE.md` - 详细的设置指南
-- `CHECKLIST.md` - 提交前检查列表
-- `README_CN.md` - 本文件（中文简介）
+- `README_PROJECT.md` - 完全なプロジェクトドキュメント(英語)
+- `SETUP_GUIDE.md` - 詳細なセットアップガイド
+- `CHECKLIST.md` - 提出前チェックリスト
+- `README_CN.md` - このファイル(日本語概要)
 
-## 🧪 测试
+## 🧪 テスト
 
 ```bash
-# 运行自动化测试
+# 自動テストを実行
 cd backend
 python test_api.py
 ```
 
-## 💡 使用提示
+## 💡 使用のヒント
 
-1. **城市名称**: 使用英文（Tokyo, Beijing, London等）
-2. **API限制**: 免费API有调用次数限制，请勿频繁请求
-3. **网络要求**: 需要能访问国际API服务
+1. **都市名**: 英語を使用(Tokyo, Beijing, Londonなど)
+2. **API制限**: 無料APIには呼び出し回数制限があります、頻繁にリクエストしないでください
+3. **ネットワーク要件**: 国際APIサービスにアクセスできる必要があります
 
-## 🌍 支持的城市（示例）
+## 🌍 対応都市(例)
 
 - 日本: Tokyo, Osaka
 - 中国: Beijing, Shanghai, Guangzhou
-- 韩国: Seoul, Busan
-- 欧洲: London, Paris, Berlin, Rome
-- 美洲: New York, Los Angeles, Toronto
+- 韓国: Seoul, Busan
+- ヨーロッパ: London, Paris, Berlin, Rome
+- アメリカ: New York, Los Angeles, Toronto
 
-## 📝 报告截图建议
+## 📝 レポートスクリーンショット推奨
 
-1. 前端界面显示高分（非常适合）
-2. 前端界面显示低分（不适合）
-3. API文档页面
-4. API响应数据
-5. 不同城市的对比
+1. フロントエンドインターフェースで高スコア表示(非常に適している)
+2. フロントエンドインターフェースで低スコア表示(不適)
+3. APIドキュメントページ
+4. APIレスポンスデータ
+5. 異なる都市の比較
 
-## ⚠️ 注意事项
+## ⚠️ 注意事項
 
-- ❌ 不要提交包含真实API密钥的文件
-- ✅ 使用 `.env.example` 作为模板
-- ✅ 在报告中说明如何获取API密钥
-- ✅ 测试所有功能正常工作后再提交
+- ❌ 実際のAPIキーを含むファイルを提出しないでください
+- ✅ `.env.example` をテンプレートとして使用
+- ✅ レポートでAPIキーの取得方法を説明
+- ✅ すべての機能が正常に動作することを確認してから提出
 
-## 🎉 完成检查
+## 🎉 完了チェック
 
-提交前请确认：
-- [ ] 代码可以正常运行
-- [ ] API密钥已配置（测试用）
-- [ ] 所有端点都能正常响应
-- [ ] 前端界面显示正常
-- [ ] API文档可以打开
-- [ ] 报告已完成并包含截图
-- [ ] ZIP文件包含所有必要文件
+提出前に確認:
+- [ ] コードが正常に動作する
+- [ ] APIキーが設定済み(テスト用)
+- [ ] すべてのエンドポイントが正常に応答
+- [ ] フロントエンドインターフェースが正常に表示
+- [ ] APIドキュメントが開ける
+- [ ] レポートが完成しスクリーンショット含む
+- [ ] ZIPファイルにすべての必要なファイルが含まれる
 
 ---
 
-祝你顺利完成作业！🎓✨
+課題の成功を祈ります！🎓✨
