@@ -137,12 +137,12 @@
     <script src="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui-bundle.js"></script>
     <script src="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui-standalone-preset.js"></script>
     <script>
-        // OpenAPI 规范内联版本（避免CORS问题）
+        // OpenAPI 仕様のインライン版（CORS問題を回避）
         const spec = {
   "openapi": "3.0.3",
   "info": {
     "title": "Walk Suitability API",
-    "description": "散步适合度指数API - 整合天气和空气质量数据，为用户提供科学的散步建议\n\n本服务通过调用以下两个公共API：\n- OpenWeatherMap API (天气数据)\n- World Air Quality Index API (空气质量数据)\n\n并将这些数据融合计算出一个综合的\"散步适合度指数\"(0-100分)。\n",
+    "description": "散歩適合度指数API - 天気と大気質データを統合し、ユーザーに科学的な散歩アドバイスを提供します\n\n本サービスは以下の2つの公開APIを呼び出します：\n- OpenWeatherMap API (天気データ)\n- World Air Quality Index API (大気質データ)\n\nこれらのデータを融合して総合的な「散歩適合度指数」(0-100点)を算出します。\n",
     "version": "1.0.0",
     "contact": {
       "name": "API Support",
@@ -152,36 +152,36 @@
   "servers": [
     {
       "url": "http://localhost:5000",
-      "description": "本地开发服务器"
+      "description": "ローカル開発サーバー"
     }
   ],
   "tags": [
     {
       "name": "Walk Suitability",
-      "description": "散步适合度相关接口"
+      "description": "散歩適合度関連インターフェース"
     },
     {
       "name": "Weather",
-      "description": "天气数据接口"
+      "description": "天気データインターフェース"
     },
     {
       "name": "Air Quality",
-      "description": "空气质量数据接口"
+      "description": "大気質データインターフェース"
     },
     {
       "name": "System",
-      "description": "系统接口"
+      "description": "システムインターフェース"
     }
   ],
   "paths": {
     "/": {
       "get": {
         "tags": ["System"],
-        "summary": "API信息",
-        "description": "获取API的基本信息和可用端点",
+        "summary": "API情報",
+        "description": "APIの基本情報と利用可能なエンドポイントを取得",
         "responses": {
           "200": {
-            "description": "成功返回API信息",
+            "description": "API情報を正常に返却",
             "content": {
               "application/json": {
                 "schema": {
@@ -212,11 +212,11 @@
     "/health": {
       "get": {
         "tags": ["System"],
-        "summary": "健康检查",
-        "description": "检查API服务是否正常运行",
+        "summary": "ヘルスチェック",
+        "description": "APIサービスが正常に動作しているか確認",
         "responses": {
           "200": {
-            "description": "服务正常",
+            "description": "サービス正常",
             "content": {
               "application/json": {
                 "schema": {
@@ -241,13 +241,13 @@
     "/api/walk-suitability": {
       "get": {
         "tags": ["Walk Suitability"],
-        "summary": "获取散步适合度指数",
-        "description": "根据指定城市的天气和空气质量数据，计算并返回散步适合度指数。\n\n评分标准：\n- 80-100分：非常适合散步\n- 60-79分：适合散步\n- 40-59分：一般\n- 0-39分：不适合散步\n\n计算因素包括：\n- 温度 (权重: 25%)\n- 天气状况 (权重: 25%)\n- 空气质量 (权重: 30%)\n- 湿度 (权重: 10%)\n- 风速 (权重: 10%)\n",
+        "summary": "散歩適合度指数を取得",
+        "description": "指定された都市の天気と大気質データに基づいて、散歩適合度指数を計算して返却します。\n\n評価基準：\n- 80-100点：散歩に非常に適している\n- 60-79点：散歩に適している\n- 40-59点：普通\n- 0-39点：散歩に適していない\n\n計算要素：\n- 気温 (重み: 25%)\n- 天候状況 (重み: 25%)\n- 大気質 (重み: 30%)\n- 湿度 (重み: 10%)\n- 風速 (重み: 10%)\n",
         "parameters": [
           {
             "name": "city",
             "in": "query",
-            "description": "城市名称（英文）",
+            "description": "都市名（英語）",
             "required": false,
             "schema": {
               "type": "string",
@@ -258,7 +258,7 @@
         ],
         "responses": {
           "200": {
-            "description": "成功返回散步适合度数据",
+            "description": "散歩適合度データを正常に返却",
             "content": {
               "application/json": {
                 "schema": {
@@ -282,27 +282,27 @@
                         "score": {
                           "type": "number",
                           "format": "float",
-                          "description": "散步适合度指数 (0-100)",
+                          "description": "散歩適合度指数 (0-100)",
                           "example": 85.5
                         },
                         "level": {
                           "type": "string",
-                          "description": "适合度等级",
-                          "enum": ["非常适合", "适合", "一般", "不适合"],
-                          "example": "非常适合"
+                          "description": "適合度レベル",
+                          "enum": ["非常に適している", "適している", "普通", "適していない"],
+                          "example": "非常に適している"
                         },
                         "recommendation": {
                           "type": "string",
-                          "description": "散步建议",
-                          "example": "现在是散步的绝佳时机！"
+                          "description": "散歩アドバイス",
+                          "example": "今は散歩に最適な時間です！"
                         },
                         "reasons": {
                           "type": "array",
                           "items": {
                             "type": "string"
                           },
-                          "description": "评分原因说明",
-                          "example": ["天气和空气质量都很好"]
+                          "description": "評価理由の説明",
+                          "example": ["天気と大気質ともに良好です"]
                         },
                         "details": {
                           "type": "object",
@@ -343,7 +343,7 @@
             }
           },
           "500": {
-            "description": "服务器错误",
+            "description": "サーバーエラー",
             "content": {
               "application/json": {
                 "schema": {
@@ -358,13 +358,13 @@
     "/api/weather": {
       "get": {
         "tags": ["Weather"],
-        "summary": "获取天气数据",
-        "description": "从OpenWeatherMap API获取指定城市的天气信息",
+        "summary": "天気データを取得",
+        "description": "OpenWeatherMap APIから指定都市の天気情報を取得",
         "parameters": [
           {
             "name": "city",
             "in": "query",
-            "description": "城市名称（英文）",
+            "description": "都市名（英語）",
             "required": false,
             "schema": {
               "type": "string",
@@ -375,7 +375,7 @@
         ],
         "responses": {
           "200": {
-            "description": "成功返回天气数据",
+            "description": "天気データを正常に返却",
             "content": {
               "application/json": {
                 "schema": {
@@ -402,7 +402,7 @@
             }
           },
           "500": {
-            "description": "服务器错误",
+            "description": "サーバーエラー",
             "content": {
               "application/json": {
                 "schema": {
@@ -417,13 +417,13 @@
     "/api/air-quality": {
       "get": {
         "tags": ["Air Quality"],
-        "summary": "获取空气质量数据",
-        "description": "从World Air Quality Index API获取指定城市的空气质量信息",
+        "summary": "大気質データを取得",
+        "description": "World Air Quality Index APIから指定都市の大気質情報を取得",
         "parameters": [
           {
             "name": "city",
             "in": "query",
-            "description": "城市名称（英文）",
+            "description": "都市名（英語）",
             "required": false,
             "schema": {
               "type": "string",
@@ -434,7 +434,7 @@
         ],
         "responses": {
           "200": {
-            "description": "成功返回空气质量数据",
+            "description": "大気質データを正常に返却",
             "content": {
               "application/json": {
                 "schema": {
@@ -461,7 +461,7 @@
             }
           },
           "500": {
-            "description": "服务器错误",
+            "description": "サーバーエラー",
             "content": {
               "application/json": {
                 "schema": {
@@ -478,82 +478,82 @@
     "schemas": {
       "WeatherData": {
         "type": "object",
-        "description": "天气数据对象",
+        "description": "天気データオブジェクト",
         "properties": {
           "temperature": {
             "type": "number",
             "format": "float",
-            "description": "温度（摄氏度）",
+            "description": "気温（摂氏）",
             "example": 22.5
           },
           "feels_like": {
             "type": "number",
             "format": "float",
-            "description": "体感温度（摄氏度）",
+            "description": "体感気温（摂氏）",
             "example": 21.8
           },
           "humidity": {
             "type": "integer",
-            "description": "湿度（百分比）",
+            "description": "湿度（パーセント）",
             "example": 65
           },
           "weather": {
             "type": "string",
-            "description": "天气状况",
+            "description": "天候状況",
             "example": "Clear"
           },
           "weather_description": {
             "type": "string",
-            "description": "天气详细描述",
+            "description": "天候の詳細説明",
             "example": "clear sky"
           },
           "wind_speed": {
             "type": "number",
             "format": "float",
-            "description": "风速（米/秒）",
+            "description": "風速（m/s）",
             "example": 3.5
           },
           "clouds": {
             "type": "integer",
-            "description": "云量（百分比）",
+            "description": "雲量（パーセント）",
             "example": 20
           }
         }
       },
       "AirQualityData": {
         "type": "object",
-        "description": "空气质量数据对象",
+        "description": "大気質データオブジェクト",
         "properties": {
           "aqi": {
             "type": "integer",
-            "description": "空气质量指数 (AQI)",
+            "description": "大気質指数 (AQI)",
             "example": 45
           },
           "pm25": {
             "type": "number",
             "format": "float",
-            "description": "PM2.5浓度",
+            "description": "PM2.5濃度",
             "nullable": true,
             "example": 12.5
           },
           "pm10": {
             "type": "number",
             "format": "float",
-            "description": "PM10浓度",
+            "description": "PM10濃度",
             "nullable": true,
             "example": 25.3
           },
           "o3": {
             "type": "number",
             "format": "float",
-            "description": "臭氧浓度",
+            "description": "オゾン濃度",
             "nullable": true,
             "example": 30.2
           },
           "no2": {
             "type": "number",
             "format": "float",
-            "description": "二氧化氮浓度",
+            "description": "二酸化窒素濃度",
             "nullable": true,
             "example": 15.8
           }
@@ -568,8 +568,8 @@
           },
           "error": {
             "type": "string",
-            "description": "错误信息",
-            "example": "天气数据获取失败"
+            "description": "エラーメッセージ",
+            "example": "天気データの取得に失敗しました"
           }
         }
       }
