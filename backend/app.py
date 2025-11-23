@@ -2,59 +2,115 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
 from datetime import datetime
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-# API配置
-OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', 'your_openweather_api_key_here')
-WAQI_API_KEY = os.getenv('WAQI_API_KEY', 'your_waqi_api_key_here')
-
 def get_weather_data(city):
     """
-    获取天气数据 (OpenWeatherMap API)
+    获取天气数据 (Open-Meteo API - 完全免费，无需token)
+    使用geocoding获取坐标，然后获取天气
     """
     try:
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric"
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+        # 1. 先通过城市名获取坐标
+        geocode_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=zh&format=json"
+        geo_response = requests.get(geocode_url, timeout=10)
+        geo_response.raise_for_status()
+        geo_data = geo_response.json()
+
+        if not geo_data.get('results'):
+            raise Exception(f"找不到城市: {city}")
+
+        location = geo_data['results'][0]
+        lat = location['latitude']
+        lon = location['longitude']
+
+        # 2. 使用坐标获取天气数据
+        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,wind_speed_10m&timezone=auto"
+        weather_response = requests.get(weather_url, timeout=10)
+        weather_response.raise_for_status()
+        weather_data = weather_response.json()
+
+        current = weather_data['current']
+
+        # 天气代码映射
+        weather_code_map = {
+            0: ('Clear', 'clear sky'),
+            1: ('Clouds', 'mainly clear'),
+            2: ('Clouds', 'partly cloudy'),
+            3: ('Clouds', 'overcast'),
+            45: ('Fog', 'foggy'),
+            48: ('Fog', 'depositing rime fog'),
+            51: ('Drizzle', 'light drizzle'),
+            53: ('Drizzle', 'moderate drizzle'),
+            55: ('Drizzle', 'dense drizzle'),
+            61: ('Rain', 'slight rain'),
+            63: ('Rain', 'moderate rain'),
+            65: ('Rain', 'heavy rain'),
+            71: ('Snow', 'slight snow'),
+            73: ('Snow', 'moderate snow'),
+            75: ('Snow', 'heavy snow'),
+            80: ('Rain', 'slight rain showers'),
+            81: ('Rain', 'moderate rain showers'),
+            82: ('Rain', 'violent rain showers'),
+            95: ('Thunderstorm', 'thunderstorm'),
+            96: ('Thunderstorm', 'thunderstorm with slight hail'),
+            99: ('Thunderstorm', 'thunderstorm with heavy hail'),
+        }
+
+        weather_code = current.get('weather_code', 0)
+        weather_main, weather_desc = weather_code_map.get(weather_code, ('Clear', 'unknown'))
 
         return {
-            'temperature': data['main']['temp'],
-            'feels_like': data['main']['feels_like'],
-            'humidity': data['main']['humidity'],
-            'weather': data['weather'][0]['main'],
-            'weather_description': data['weather'][0]['description'],
-            'wind_speed': data['wind']['speed'],
-            'clouds': data['clouds']['all']
+            'temperature': current['temperature_2m'],
+            'feels_like': current['apparent_temperature'],
+            'humidity': current['relative_humidity_2m'],
+            'weather': weather_main,
+            'weather_description': weather_desc,
+            'wind_speed': current['wind_speed_10m'],
+            'clouds': current['cloud_cover'],
+            'city_name': location['name'],
+            'country': location.get('country', '')
         }
     except Exception as e:
         raise Exception(f"天气数据获取失败: {str(e)}")
 
 def get_air_quality_data(city):
     """
-    获取空气质量数据 (World Air Quality Index API)
+    获取空气质量数据 (Open-Meteo Air Quality API - 完全免费，无需token)
     """
     try:
-        url = f"http://api.waqi.info/feed/{city}/?token={WAQI_API_KEY}"
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+        # 1. 先通过城市名获取坐标
+        geocode_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=zh&format=json"
+        geo_response = requests.get(geocode_url, timeout=10)
+        geo_response.raise_for_status()
+        geo_data = geo_response.json()
 
-        if data['status'] != 'ok':
-            raise Exception("空气质量数据返回状态异常")
+        if not geo_data.get('results'):
+            raise Exception(f"找不到城市: {city}")
 
-        aqi = data['data']['aqi']
-        iaqi = data['data'].get('iaqi', {})
+        location = geo_data['results'][0]
+        lat = location['latitude']
+        lon = location['longitude']
+
+        # 2. 使用坐标获取空气质量数据
+        air_url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,us_aqi,european_aqi&timezone=auto"
+        air_response = requests.get(air_url, timeout=10)
+        air_response.raise_for_status()
+        air_data = air_response.json()
+
+        current = air_data['current']
+
+        # 使用美国AQI标准
+        aqi = current.get('us_aqi', current.get('european_aqi', 50))
 
         return {
-            'aqi': aqi,
-            'pm25': iaqi.get('pm25', {}).get('v', None),
-            'pm10': iaqi.get('pm10', {}).get('v', None),
-            'o3': iaqi.get('o3', {}).get('v', None),
-            'no2': iaqi.get('no2', {}).get('v', None)
+            'aqi': int(aqi) if aqi else 50,
+            'pm25': current.get('pm2_5'),
+            'pm10': current.get('pm10'),
+            'o3': current.get('ozone'),
+            'no2': current.get('nitrogen_dioxide'),
+            'co': current.get('carbon_monoxide')
         }
     except Exception as e:
         raise Exception(f"空气质量数据获取失败: {str(e)}")
@@ -197,9 +253,13 @@ def index():
     API根路径
     """
     return jsonify({
-        'service': 'Walk Suitability API',
-        'version': '1.0.0',
-        'description': '散步适合度指数服务 - 整合天气和空气质量数据',
+        'service': 'Walk Suitability API (No Token Required)',
+        'version': '2.0.0',
+        'description': '散步适合度指数服务 - 使用完全免费的开放API，无需注册token',
+        'apis_used': {
+            'weather': 'Open-Meteo Weather API (https://open-meteo.com)',
+            'air_quality': 'Open-Meteo Air Quality API (https://open-meteo.com)'
+        },
         'endpoints': {
             '/api/walk-suitability': 'GET - 获取城市的散步适合度指数',
             '/api/weather': 'GET - 获取天气数据',
@@ -291,4 +351,15 @@ def get_walk_suitability():
         }), 500
 
 if __name__ == '__main__':
+    print("=" * 60)
+    print("🎉 Walk Suitability API - No Token Required!")
+    print("=" * 60)
+    print("✅ 使用完全免费的Open-Meteo API")
+    print("✅ 无需注册，无需API密钥")
+    print("✅ 立即可用")
+    print("=" * 60)
+    print("📡 服务启动在: http://localhost:5000")
+    print("🌐 前端界面: 打开 frontend/index.html")
+    print("📚 API文档: 打开 documentation/api-docs.html")
+    print("=" * 60)
     app.run(debug=True, host='0.0.0.0', port=5000)
