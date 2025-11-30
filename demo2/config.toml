@@ -1,0 +1,15 @@
+[server]
+host = "0.0.0.0"
+port = 5002
+debug = true
+
+[database]
+host = "178.239.125.229"
+port = 9532
+name = "apple"
+user = "pacman"
+password = "52Q50tPJRNjTtYxXkjAP"
+
+[jwt]
+secret_key = "fe94dc39-764f-4232-9bfe-4cfb46bba82e"
+expires_hours = 24

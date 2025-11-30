@@ -1,0 +1,6 @@
+flask==3.0.0
+flask-cors==4.0.0
+peewee==3.17.0
+psycopg2-binary==2.9.9
+PyJWT==2.8.0
+toml==0.10.2
