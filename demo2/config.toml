@@ -8,7 +8,7 @@ host = "178.239.125.229"
 port = 9532
 name = "apple"
 user = "pacman"
-password = "52Q50tPJRNjTtYxXkjAP"
+password = "52Q50tPJRNjTtYxXkjA"
 
 [jwt]
 secret_key = "fe94dc39-764f-4232-9bfe-4cfb46bba82e"
