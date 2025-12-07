@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Service</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+        }
+        .row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .col {
+            flex: 1;
+            min-width: 300px;
+        }
+        .user-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .user-info h3 {
+            margin-bottom: 10px;
+        }
+        .user-info .balance {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            float: right;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .tab.active {
+            background: white;
+            color: #667eea;
+        }
+        .auth-section, .main-section {
+            display: none;
+        }
+        .auth-section.active, .main-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Service</h1>
+
+        <!-- 未ログイン時の表示 -->
+        <div class="auth-section active" id="authSection">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('login')">ログイン</button>
+                <button class="tab" onclick="showTab('register')">新規登録</button>
+            </div>
+
+            <!-- ログイン -->
+            <div class="card" id="loginCard">
+                <h2>ユーザーログイン</h2>
+                <div id="loginAlert" class="alert"></div>
+                <div class="form-group">
+                    <label>ユーザー名</label>
+                    <input type="text" id="loginUsername" placeholder="ユーザー名を入力">
+                </div>
+                <div class="form-group">
+                    <label>パスワード</label>
+                    <input type="password" id="loginPassword" placeholder="パスワードを入力">
+                </div>
+                <button class="btn btn-primary" onclick="login()">ログイン</button>
+            </div>
+
+            <!-- 新規登録 -->
+            <div class="card" id="registerCard" style="display:none;">
+                <h2>ユーザー登録</h2>
+                <div id="registerAlert" class="alert"></div>
+                <div class="form-group">
+                    <label>ユーザー名</label>
+                    <input type="text" id="regUsername" placeholder="3〜50文字">
+                </div>
+                <div class="form-group">
+                    <label>パスワード</label>
+                    <input type="password" id="regPassword" placeholder="6文字以上">
+                </div>
+                <div class="form-group">
+                    <label>初期残高</label>
+                    <input type="number" id="regBalance" placeholder="任意、デフォルトは0" value="0">
+                </div>
+                <button class="btn btn-success" onclick="register()">登録</button>
+            </div>
+        </div>
+
+        <!-- ログイン後の表示 -->
+        <div class="main-section" id="mainSection">
+            <div class="user-info" id="userInfo">
+                <button class="logout-btn" onclick="logout()">ログアウト</button>
+                <h3>ようこそ、<span id="displayUsername"></span> さん</h3>
+                <div>現在の残高: <span class="balance" id="displayBalance">0.00</span> 円</div>
+            </div>
+
+            <!-- 普通用户区域 -->
+            <div id="userBalanceSection">
+                <div class="row">
+                    <div class="col">
+                        <!-- 送金 -->
+                        <div class="card">
+                            <h2>送金</h2>
+                            <div id="transferAlert" class="alert"></div>
+                            <div class="form-group">
+                                <label>送金先ユーザー</label>
+                                <input type="text" id="toUsername" placeholder="送金先のユーザー名を入力">
+                            </div>
+                            <div class="form-group">
+                                <label>送金額</label>
+                                <input type="number" id="transferAmount" placeholder="金額を入力" step="0.01" min="0.01">
+                            </div>
+                            <button class="btn btn-success" onclick="transfer()">送金する</button>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <!-- 自分の転送記録 -->
+                        <div class="card">
+                            <h2>自分の転送記録</h2>
+                            <button class="btn btn-info" onclick="loadMyTransactions()" style="margin-bottom:15px;">記録を更新</button>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>タイプ</th>
+                                        <th>相手</th>
+                                        <th>金額</th>
+                                        <th>日時</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="myTransactionList">
+                                    <tr><td colspan="4" style="text-align:center;">更新ボタンをクリックしてデータを読み込む</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 管理员区域 -->
+            <div id="adminSection" style="display:none;">
+                <div class="row">
+                    <div class="col">
+                        <!-- 残高修正 -->
+                        <div class="card">
+                            <h2>ユーザー残高修正</h2>
+                            <div id="adminBalanceAlert" class="alert"></div>
+                            <div class="form-group">
+                                <label>ユーザー名</label>
+                                <input type="text" id="adminTargetUsername" placeholder="ユーザー名を入力">
+                            </div>
+                            <div class="form-group">
+                                <label>新しい残高</label>
+                                <input type="number" id="adminNewBalance" placeholder="新しい残高を入力" step="0.01" min="0">
+                            </div>
+                            <button class="btn btn-primary" onclick="adminUpdateBalance()">残高を更新</button>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <!-- 全ユーザー残高一覧 -->
+                        <div class="card">
+                            <h2>全ユーザー残高</h2>
+                            <button class="btn btn-info" onclick="loadBalances()" style="margin-bottom:15px;">リストを更新</button>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>ユーザー名</th>
+                                        <th>残高</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userList">
+                                    <tr><td colspan="3" style="text-align:center;">更新ボタンをクリックしてデータを読み込む</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <!-- 全転送記録 -->
+                        <div class="card">
+                            <h2>全転送記録</h2>
+                            <button class="btn btn-info" onclick="loadAllTransactions()" style="margin-bottom:15px;">記録を更新</button>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>送金元</th>
+                                        <th>送金先</th>
+                                        <th>金額</th>
+                                        <th>日時</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allTransactionList">
+                                    <tr><td colspan="5" style="text-align:center;">更新ボタンをクリックしてデータを読み込む</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5002';
+        let token = localStorage.getItem('token');
+        let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+
+        // 初期化
+        $(document).ready(function() {
+            if (token && currentUser) {
+                showMainSection();
+            }
+        });
+
+        function showTab(tab) {
+            $('.tab').removeClass('active');
+            if (tab === 'login') {
+                $('#loginCard').show();
+                $('#registerCard').hide();
+                $('.tab:first').addClass('active');
+            } else {
+                $('#loginCard').hide();
+                $('#registerCard').show();
+                $('.tab:last').addClass('active');
+            }
+        }
+
+        function showAlert(elementId, message, isSuccess) {
+            const alert = $(`#${elementId}`);
+            alert.removeClass('alert-success alert-error')
+                 .addClass(isSuccess ? 'alert-success' : 'alert-error')
+                 .text(message)
+                 .show();
+            setTimeout(() => alert.fadeOut(), 3000);
+        }
+
+        function showMainSection() {
+            $('#authSection').removeClass('active');
+            $('#mainSection').addClass('active');
+            $('#userInfo').show();
+            $('#displayUsername').text(currentUser.username);
+
+            if (currentUser.is_admin) {
+                // 管理员显示
+                $('#displayBalance').parent().html('ロール: <span class="balance">管理员</span>');
+                $('#adminSection').show();
+                $('#userBalanceSection').hide();
+                loadBalances();
+            } else {
+                // 普通用户显示
+                $('#displayBalance').text(currentUser.balance.toFixed(2));
+                $('#adminSection').hide();
+                $('#userBalanceSection').show();
+                loadMyBalance();
+            }
+        }
+
+        function showAuthSection() {
+            $('#mainSection').removeClass('active');
+            $('#authSection').addClass('active');
+            $('#userInfo').hide();
+        }
+
+        // 登録
+        function register() {
+            const username = $('#regUsername').val().trim();
+            const password = $('#regPassword').val();
+            const balance = parseFloat($('#regBalance').val()) || 0;
+
+            if (!username || !password) {
+                showAlert('registerAlert', 'ユーザー名とパスワードを入力してください', false);
+                return;
+            }
+
+            $.ajax({
+                url: `${API_BASE}/api/register`,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ username, password, balance }),
+                success: function(res) {
+                    if (res.success) {
+                        showAlert('registerAlert', '登録が完了しました。ログインしてください', true);
+                        $('#regUsername, #regPassword').val('');
+                        $('#regBalance').val('0');
+                        setTimeout(() => showTab('login'), 1500);
+                    } else {
+                        showAlert('registerAlert', res.error, false);
+                    }
+                },
+                error: function(xhr) {
+                    const res = xhr.responseJSON || {};
+                    showAlert('registerAlert', res.error || '登録に失敗しました', false);
+                }
+            });
+        }
+
+        // ログイン
+        function login() {
+            const username = $('#loginUsername').val().trim();
+            const password = $('#loginPassword').val();
+
+            if (!username || !password) {
+                showAlert('loginAlert', 'ユーザー名とパスワードを入力してください', false);
+                return;
+            }
+
+            $.ajax({
+                url: `${API_BASE}/api/login`,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ username, password }),
+                success: function(res) {
+                    if (res.success) {
+                        token = res.token;
+                        currentUser = res.user;
+                        localStorage.setItem('token', token);
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                        $('#loginUsername, #loginPassword').val('');
+                        showMainSection();
+                    } else {
+                        showAlert('loginAlert', res.error, false);
+                    }
+                },
+                error: function(xhr) {
+                    const res = xhr.responseJSON || {};
+                    showAlert('loginAlert', res.error || 'ログインに失敗しました', false);
+                }
+            });
+        }
+
+        // ログアウト
+        function logout() {
+            token = null;
+            currentUser = null;
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            showAuthSection();
+        }
+
+        // 残高一覧を読み込む（管理员专用）
+        function loadBalances() {
+            if (!currentUser || !currentUser.is_admin) {
+                $('#userList').html('<tr><td colspan="3" style="text-align:center;color:#999;">管理员のみ閲覧可能</td></tr>');
+                return;
+            }
+            $.ajax({
+                url: `${API_BASE}/api/users/balances`,
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` },
+                success: function(res) {
+                    if (res.success) {
+                        const tbody = $('#userList');
+                        tbody.empty();
+                        if (res.users.length === 0) {
+                            tbody.append('<tr><td colspan="3" style="text-align:center;">ユーザーがいません</td></tr>');
+                        } else {
+                            res.users.forEach(user => {
+                                tbody.append(`
+                                    <tr>
+                                        <td>${user.id}</td>
+                                        <td>${user.username}</td>
+                                        <td>${user.balance.toFixed(2)} 円</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 403) {
+                        $('#userList').html('<tr><td colspan="3" style="text-align:center;color:#999;">管理员のみ閲覧可能</td></tr>');
+                    } else {
+                        $('#userList').html('<tr><td colspan="3" style="text-align:center;color:red;">読み込みに失敗しました</td></tr>');
+                    }
+                }
+            });
+        }
+
+        // 自分の残高を読み込む（普通用户）
+        function loadMyBalance() {
+            if (!token || (currentUser && currentUser.is_admin)) return;
+            $.ajax({
+                url: `${API_BASE}/api/my/balance`,
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` },
+                success: function(res) {
+                    if (res.success) {
+                        currentUser.balance = res.balance;
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                        $('#displayBalance').text(res.balance.toFixed(2));
+                    }
+                }
+            });
+        }
+
+        // 自分の転送記録を読み込む（普通用户）
+        function loadMyTransactions() {
+            if (!token || (currentUser && currentUser.is_admin)) return;
+            $.ajax({
+                url: `${API_BASE}/api/my/transactions`,
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` },
+                success: function(res) {
+                    if (res.success) {
+                        const tbody = $('#myTransactionList');
+                        tbody.empty();
+                        if (res.transactions.length === 0) {
+                            tbody.append('<tr><td colspan="4" style="text-align:center;">転送記録がありません</td></tr>');
+                        } else {
+                            res.transactions.forEach(t => {
+                                const type = t.direction === 'sent' ? '送金' : '受取';
+                                const other = t.direction === 'sent' ? t.to_user : t.from_user;
+                                const date = new Date(t.created_at).toLocaleString('ja-JP');
+                                tbody.append(`
+                                    <tr>
+                                        <td>${type}</td>
+                                        <td>${other}</td>
+                                        <td>${t.amount.toFixed(2)} 円</td>
+                                        <td>${date}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    }
+                },
+                error: function() {
+                    $('#myTransactionList').html('<tr><td colspan="4" style="text-align:center;color:red;">読み込みに失敗しました</td></tr>');
+                }
+            });
+        }
+
+        // 全転送記録を読み込む（管理员专用）
+        function loadAllTransactions() {
+            if (!currentUser || !currentUser.is_admin) return;
+            $.ajax({
+                url: `${API_BASE}/api/transactions`,
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` },
+                success: function(res) {
+                    if (res.success) {
+                        const tbody = $('#allTransactionList');
+                        tbody.empty();
+                        if (res.transactions.length === 0) {
+                            tbody.append('<tr><td colspan="5" style="text-align:center;">転送記録がありません</td></tr>');
+                        } else {
+                            res.transactions.forEach(t => {
+                                const date = new Date(t.created_at).toLocaleString('ja-JP');
+                                tbody.append(`
+                                    <tr>
+                                        <td>${t.id}</td>
+                                        <td>${t.from_user || '-'}</td>
+                                        <td>${t.to_user || '-'}</td>
+                                        <td>${t.amount.toFixed(2)} 円</td>
+                                        <td>${date}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    }
+                },
+                error: function() {
+                    $('#allTransactionList').html('<tr><td colspan="5" style="text-align:center;color:red;">読み込みに失敗しました</td></tr>');
+                }
+            });
+        }
+
+        // 管理员修改用户余额
+        function adminUpdateBalance() {
+            const username = $('#adminTargetUsername').val().trim();
+            const newBalance = parseFloat($('#adminNewBalance').val());
+
+            if (!username) {
+                showAlert('adminBalanceAlert', 'ユーザー名を入力してください', false);
+                return;
+            }
+            if (isNaN(newBalance) || newBalance < 0) {
+                showAlert('adminBalanceAlert', '有効な残高を入力してください', false);
+                return;
+            }
+
+            $.ajax({
+                url: `${API_BASE}/api/admin/balance`,
+                method: 'PUT',
+                contentType: 'application/json',
+                headers: { 'Authorization': `Bearer ${token}` },
+                data: JSON.stringify({ username: username, balance: newBalance }),
+                success: function(res) {
+                    if (res.success) {
+                        showAlert('adminBalanceAlert', res.message, true);
+                        $('#adminTargetUsername, #adminNewBalance').val('');
+                        loadBalances();
+                    } else {
+                        showAlert('adminBalanceAlert', res.error, false);
+                    }
+                },
+                error: function(xhr) {
+                    const res = xhr.responseJSON || {};
+                    showAlert('adminBalanceAlert', res.error || '更新に失敗しました', false);
+                }
+            });
+        }
+
+        // 送金
+        function transfer() {
+            const toUsername = $('#toUsername').val().trim();
+            const amount = parseFloat($('#transferAmount').val());
+
+            if (!toUsername) {
+                showAlert('transferAlert', '送金先ユーザー名を入力してください', false);
+                return;
+            }
+            if (!amount || amount <= 0) {
+                showAlert('transferAlert', '有効な金額を入力してください', false);
+                return;
+            }
+
+            $.ajax({
+                url: `${API_BASE}/api/transfer`,
+                method: 'POST',
+                contentType: 'application/json',
+                headers: { 'Authorization': `Bearer ${token}` },
+                data: JSON.stringify({ to_username: toUsername, amount }),
+                success: function(res) {
+                    if (res.success) {
+                        showAlert('transferAlert', res.message, true);
+                        $('#toUsername, #transferAmount').val('');
+                        currentUser.balance = res.from_balance;
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                        $('#displayBalance').text(res.from_balance.toFixed(2));
+                        loadBalances();
+                    } else {
+                        showAlert('transferAlert', res.error, false);
+                    }
+                },
+                error: function(xhr) {
+                    const res = xhr.responseJSON || {};
+                    if (xhr.status === 401) {
+                        showAlert('transferAlert', 'ログインの有効期限が切れました。再度ログインしてください', false);
+                        setTimeout(logout, 1500);
+                    } else {
+                        showAlert('transferAlert', res.error || '送金に失敗しました', false);
+                    }
+                }
+            });
+        }
+
+        // Enterキーで送信
+        $('#loginPassword').keypress(function(e) {
+            if (e.which === 13) login();
+        });
+        $('#regPassword').keypress(function(e) {
+            if (e.which === 13) register();
+        });
+        $('#transferAmount').keypress(function(e) {
+            if (e.which === 13) transfer();
+        });
+    </script>
+</body>
+</html>
