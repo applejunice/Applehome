@@ -1,2 +1,14 @@
 .vscode
 .idea
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzwz
+*.pyzwzw
+*.pyzwzwzw
+*.pyzwzwzwzw
+*.pyzwzwzwzwzw
