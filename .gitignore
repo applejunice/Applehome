@@ -12,3 +12,6 @@
 *.pyzwzwzw
 *.pyzwzwzwzw
 *.pyzwzwzwzwzw
+
+node_modules
+.DS_Store

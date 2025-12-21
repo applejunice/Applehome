@@ -1,0 +1,8 @@
+name = "soap-api-demo"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# KV namespace for storing users (optional, for persistent storage)
+# [[kv_namespaces]]
+# binding = "USERS_KV"
+# id = "your-kv-namespace-id"

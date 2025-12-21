@@ -1,0 +1,14 @@
+{
+  "name": "cf-soap-api-demo",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers SOAP API Demo - User Registration and List",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node test/test-soap.js"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
